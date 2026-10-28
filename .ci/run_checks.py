@@ -65,7 +65,8 @@ def main():
 
     if args.target == "js":
         def artifact(name):
-            candidates = [p for p in (ROOT/"_build/js/debug/build").rglob(name+".js") if p.parent.name == name]
+            candidates = [p for p in (ROOT/"_build/js/debug/build").rglob(name+".js")
+                          if p.parent.name == name and p.parent.parent.name == "cmd"]
             if len(candidates) != 1:
                 raise RuntimeError("Expected exactly one compiled "+name+" executable")
             return candidates[0]
@@ -104,4 +105,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        message = str(error).replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        print("::error title=MDF4 verification failed::"+message, flush=True)
+        raise
