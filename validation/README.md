@@ -135,3 +135,19 @@ python validation/check_inspect.py COMPILED_CHANNELS_JS COMPILED_INSPECT_JS NEW_
 This runnable standard-Python/Node consumer discovers two same-named channels by group/unit and passes their global indices to `inspect FILE --index INDEX`. A pinned owned fixture supplies 48 literal original DT bytes: four interleaved `<BdhB` records independently unpacked by Python `struct`. Complete expected JSON retains raw -3/6 and 42/-99 samples, their distinct clocks/units and the invalid sample. A separate aligned UInt64 read proves exact raw strings above 2^53 while physical values retain Double precision.
 
 Checks also retain a converted master clock and source order, valid non-finite values with a separate mask, negative-zero/subnormal source cases with their legacy numeric spelling, zero/leading-zero/explicit-plus indices, unrelated unsupported conversion isolation, and legacy metadata/name/ambiguity behavior. One owned text-name derivative proves that two-argument `inspect FILE --index` still selects a literal channel named `--index`. Invalid/negative/overflow/out-of-range indices, malformed input and a selected unsupported conversion emit nonzero/stderr and no JSON. Existing missing/directory input failure semantics remain unchanged. The new capture directory contains actual command outputs, byte/value expectations, source hashes and the compiled inspector identity; original fixtures are never modified.
+
+## Native record-window public API receiver
+
+```powershell
+moon test window_wbtest.mbt --target js
+moon test window_wbtest.mbt --target wasm-gc
+moon run example/window --target wasm-gc
+moon build validation/window_receiver --target js
+python validation/check_window.py files COMPILED_WINDOW_RECEIVER_JS NEW_CAPTURE_DIRECTORY
+```
+
+The portable example is an independent package importing the public root API. The separately compiled JS file receiver opens actual owned MDF files and calls window/old whole/raw API controls in separate invocations; it imports no private product decoder. Its test-only JSON view records the entire paired result, identity/origin, typed values and exact IEEE time/value bits, without changing any product CSV/receipt/CLI format. `check_window.py example EXAMPLE_JSON` independently checks the portable example on each backend.
+
+The standard-Python file consumer pins original input bytes and independently unpacks aligned integers/floats and interleaved records with `struct`, literal expectations and simple conversion arithmetic. It covers first/middle/tail/full/empty, zero-record groups, native group positions, irregular/repeated/reversed and calibrated clocks, raw UInt64 above 2^53, invalid retained values, Number/Label/Data and identity nonfinite/signed-zero bits. New owned derivatives are written only into the new capture directory; original fixtures and old reference generators are untouched.
+
+Known sample-level domain/UTF-8/invalid-master errors outside a requested window permit that window. Expanded windows and the unchanged relevant whole/raw APIs still fail, including an invalid selected value that must still be converted. Tests check metadata on empty windows, safe range overflow/error priority, absence of partial results, and full-file open failures for a late bad record ID plus existing sample/output/block budgets. The source loop is bounded to count records; no timing threshold or lazy-I/O/constant-total-memory claim is made. The focused API tests run on JS/Wasm-GC and also check independent result arrays and immutable-byte snapshots.

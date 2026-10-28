@@ -62,6 +62,8 @@ def main():
     run("native-check", ["moon", "check", "--target", args.target], cwd=native)
     run("native-example", ["moon", "run", ".", "--target", args.target], cwd=native, output="native.json")
     run("independent-examples", [sys.executable, ROOT/".ci/verify_examples.py", out])
+    run("window-example", ["moon", "run", "example/window", "--target", args.target], output="window.json")
+    run("independent-window-example", [sys.executable, ROOT/"validation/check_window.py", "example", out/"window.json"])
 
     if args.target == "js":
         def artifact(name):
@@ -71,6 +73,11 @@ def main():
                 raise RuntimeError("Expected exactly one compiled "+name+" executable")
             return candidates[0]
         export, catalogue, summary, inspector = [artifact(name) for name in ["export", "channels", "summary", "inspect"]]
+        receivers = [p for p in (ROOT/"_build/js/debug/build").rglob("window_receiver.js")
+                     if p.parent.name == "window_receiver" and p.parent.parent.name == "validation"]
+        if len(receivers) != 1:
+            raise RuntimeError("Expected exactly one compiled public window receiver")
+        window_receiver = receivers[0]
         consumers = [
             ("analysis", "check_analysis.py", [export]),
             ("gaps", "check_gaps.py", [export]),
@@ -81,6 +88,7 @@ def main():
             ("raster", "check_raster.py", [export, out/"raster-files"]),
             ("long-fields", "check_long_fields.py", [export, out/"long-fields"]),
             ("inspect", "check_inspect.py", [catalogue, inspector, out/"inspect"]),
+            ("window", "check_window.py", ["files", window_receiver, out/"window-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -106,6 +114,7 @@ def main():
     if args.target == "js":
         print("::notice title=MDF4 verified exporter::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(export.read_bytes()).hexdigest())
         print("::notice title=MDF4 verified inspector::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(inspector.read_bytes()).hexdigest())
+        print("::notice title=MDF4 verified window receiver::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(window_receiver.read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

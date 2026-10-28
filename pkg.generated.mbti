@@ -34,6 +34,14 @@ pub fn MdfError::equal(Self, Self) -> Bool
 pub fn MdfError::not_equal(Self, Self) -> Bool
 pub fn MdfError::to_repr(Self) -> @debug.Repr
 
+pub(all) suberror WindowError {
+  InvalidRange(Int32, Int32, Int32)
+  Source(MdfError)
+} derive(Eq, @debug.Debug)
+pub fn WindowError::equal(Self, Self) -> Bool
+pub fn WindowError::not_equal(Self, Self) -> Bool
+pub fn WindowError::to_repr(Self) -> @debug.Repr
+
 // Types and methods
 pub(all) struct Channel {
   name : String
@@ -93,6 +101,7 @@ pub fn MdfFile::extract_channel(Self, String) -> Result[Series, MdfError]
 pub fn MdfFile::find_channel(Self, String) -> Result[Int32, MdfError]
 pub fn MdfFile::read_channel(Self, Int32) -> Result[Series, MdfError]
 pub fn MdfFile::read_raw(Self, Int32) -> Result[Array[RawValue], MdfError]
+pub fn MdfFile::read_window(Self, Int32, Int32, Int32) -> Result[RecordWindow, WindowError]
 pub fn MdfFile::start_ns(Self) -> UInt64
 pub fn MdfFile::version(Self) -> String
 
@@ -106,6 +115,16 @@ pub(all) enum RawValue {
 pub fn RawValue::equal(Self, Self) -> Bool
 pub fn RawValue::not_equal(Self, Self) -> Bool
 pub fn RawValue::to_repr(Self) -> @debug.Repr
+
+pub(all) struct RecordWindow {
+  channel_index : Int32
+  start_record : Int32
+  record_count : Int32
+  start_ns : UInt64
+  raw : Array[RawValue]
+  series : Series
+} derive(@debug.Debug)
+pub fn RecordWindow::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Series {
   name : String

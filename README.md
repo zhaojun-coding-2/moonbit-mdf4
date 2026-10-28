@@ -49,6 +49,25 @@ match @mdf.open(file_bytes) {
 
 Use `file.channels()` and indexed `read_raw(index)` / `read_channel(index)` when names repeat. `RawValue::Unsigned` and `Signed` preserve all 64 bits; physical numeric values use Double and may round integers above 2^53. `extract_channel` returns `Series`, not `Array[Double]`: enumerations return `Label`, binary fields return `Data`, and invalid samples retain `valid=false`. Invalid samples are retained and converted; conversion domain errors remain errors. Header `start_ns()` stays UInt64; per-series timestamps are relative master seconds.
 
+## Native record windows
+
+`file.read_window(index, start_record, count) -> Result[RecordWindow, WindowError]` returns one atomic paired raw/physical snapshot of a selected channel. The index is the catalogue/global channel index; start/count refer to that channel group's original **demultiplexed record order**, not interleaved-file positions or a time interval. No raster, sorting, interpolation, unit conversion, sample dropping or time rebasing is applied.
+
+`RecordWindow` carries `channel_index`, `start_record`, `record_count`, exact UInt64 `start_ns`, `raw`, and an existing `Series` (`name`, `unit`, `values`, `timestamps`, `valid`). The raw and three Series arrays have exactly `count` entries. Invalid selected values remain present and are still converted. Raw integers retain exact bits; physical numbers keep the existing Double semantics. Result arrays are fresh; Bytes values are immutable in the pinned SDK and can safely be shared between raw/physical values.
+
+```powershell
+moon run example/window --target js
+moon run example/window --target wasm-gc
+```
+
+This separately compiled public-API receiver requests native record 1/count 1 of catalogue index 3 in the owned calibrated fixture: raw -99, Label 倒车, physical master time 11.5, valid=true, with origin 18446744073709551615 unchanged.
+
+Ranges require `start_record >= 0`, `count >= 0`, `start_record <= N`, and `count <= N - start_record` without an overflowing sum. End-position empty windows are valid; positions beyond N are invalid even for count 0. `WindowError::InvalidRange(start,count,available)` is a caller range error. `WindowError::Source(MdfError)` preserves actual channel/metadata/sample errors; the old MdfError enum is unchanged. Channel validation precedes range validation, then the unique group master and selected/master conversion metadata are checked in the old order, even for an empty window. Only selected records undergo master decode/conversion/finite/valid checks, selected raw decode, conversion and validity checks. An error returns no partial window.
+
+Normal `open` still reads/validates/decompresses the full file, copies all group records and enforces its original structure/resource limits. After open, the new operation decodes/converts only the requested k records and constructs only their result arrays, with the normal metadata lookup/setup cost. It does not provide lazy file I/O, avoid decompression/record storage, guarantee constant total memory, or claim a measured speedup.
+
+A successful window does not certify that unselected records are physically readable. A known sample-level domain, UTF-8 or master-validity error outside a window can be avoided; including that record returns its existing source error. The old whole `read_raw`/`read_channel`/`extract_channel` behavior remains unchanged. Full-file structural/budget failures still occur at open even if a requested window would avoid that location. See `validation/check_window.py` for independent original-byte and actual public-receiver checks.
+
 ## Multi-channel analysis and CSV
 
 The additive `zhaojun-coding/mdf4/analysis` package turns selected channels into one typed table on an explicit raster. This bridges MDF sampling/validity semantics to analysis tools. General table and CSV tools already exist, including [MoonFrame](https://github.com/ihb2032/MoonFrame) and [NyaCSV](https://mooncakes.io/docs/moonbit-community/NyaCSV); this package focuses on MDF selection, per-column interpolation and retained validity. The ecosystem review and candidates are recorded in the feature-08 receipt; bounded searches do not establish uniqueness.
