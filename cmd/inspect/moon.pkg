@@ -2,6 +2,7 @@ import {
   "zhaojun-coding/mdf4" @mdf,
   "moonbitlang/core/json",
   "moonbitlang/core/debug",
+  "moonbitlang/core/string",
 }
 
 supported_targets = "js"

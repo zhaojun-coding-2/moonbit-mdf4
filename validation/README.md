@@ -124,3 +124,14 @@ python validation/check_long_fields.py COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
 ```
 
 This standard-library regression invokes the actual exporter on three self-created TX/CC7 derivatives: ASCII labels at 131072 and 131073 characters, and a 131073-character Unicode label containing comma, quotes and newlines. Each has a long valid label plus a valid empty label (six complete rows in total). Complete CSV bytes must equal independently constructed csv.writer/literal expectations, and all three imported verifier calls must pass and restore the caller's limit, including a nondefault setting. One saved over-boundary case also passes the actual verifier CLI. An unterminated long quoted field with a matching test fingerprint still fails strict parsing through both import and CLI; the limit is restored and the CLI fails cleanly. The capture directory must not exist. The three source files/CSV/receipts and all actual command outputs are retained there; no historical fixture or dependency is modified.
+
+## Indexed raw/physical channel inspection
+
+```powershell
+moon build cmd/inspect --target js
+python validation/check_inspect.py COMPILED_CHANNELS_JS COMPILED_INSPECT_JS NEW_CAPTURE_DIRECTORY
+```
+
+This runnable standard-Python/Node consumer discovers two same-named channels by group/unit and passes their global indices to `inspect FILE --index INDEX`. A pinned owned fixture supplies 48 literal original DT bytes: four interleaved `<BdhB` records independently unpacked by Python `struct`. Complete expected JSON retains raw -3/6 and 42/-99 samples, their distinct clocks/units and the invalid sample. A separate aligned UInt64 read proves exact raw strings above 2^53 while physical values retain Double precision.
+
+Checks also retain a converted master clock and source order, valid non-finite values with a separate mask, negative-zero/subnormal source cases with their legacy numeric spelling, zero/leading-zero/explicit-plus indices, unrelated unsupported conversion isolation, and legacy metadata/name/ambiguity behavior. One owned text-name derivative proves that two-argument `inspect FILE --index` still selects a literal channel named `--index`. Invalid/negative/overflow/out-of-range indices, malformed input and a selected unsupported conversion emit nonzero/stderr and no JSON. Existing missing/directory input failure semantics remain unchanged. The new capture directory contains actual command outputs, byte/value expectations, source hashes and the compiled inspector identity; original fixtures are never modified.

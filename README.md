@@ -60,11 +60,14 @@ For an unfamiliar file, run `moon run cmd/channels --target js -- YOUR_FILE.mf4`
 ```powershell
 moon run example/catalog --target wasm-gc
 moon run cmd/channels --target js -- analysis/catalog_fixture/catalog.mf4
+moon run cmd/inspect --target js -- analysis/catalog_fixture/catalog.mf4 --index 3
 moon run cmd/export --target js -- analysis/catalog_fixture/catalog.mf4 "0,0.25,0.5,0.75,1" ms 3 previous kmh 1 previous --receipt selected.json > selected.csv
 python validation/verify_export.py analysis/catalog_fixture/catalog.mf4 selected.csv selected.json
 ```
 
 Those indices belong to the supplied fixture; use the catalogue of your own file when selecting. `@analysis.channel_catalog_json(file)` supplies the same JSON on JS/Wasm-GC after opening a file. It reports exact UInt64 origin as a string, preserves empty inventories and reads existing metadata without executing physical channel conversion. Raw storage codes do not determine the converted Value kind or choose an interpolation policy. Unit text follows the root API; no XML interpretation or unit conversion is added. The CLI still uses the existing in-memory `open` and its data validation/resource limits. It is not a header-only scan, does not choose a raster and does not certify that every listed channel can be read physically.
+
+The explicit three-argument form `inspect FILE --index INDEX` selects the catalogue's non-negative decimal global index and returns the existing complete raw/physical sample JSON, with original source clocks and validity. For the owned fixture above, index 3 selects m/s and index 1 selects km/h despite their identical names. No alignment, sorting, dropping invalid samples or unit conversion is added. Floating raw strings and numeric JSON retain their old spelling, including normalization of a source negative zero to 0; raw integer strings retain their full precision. `inspect FILE` metadata and `inspect FILE CHANNEL` retain their output and name-ambiguity behavior; in the two-argument form, even `--index` remains a literal channel name. Invalid new indices and selected read/conversion failures return nonzero/stderr without partial JSON. See `validation/check_inspect.py` for a runnable catalogue-to-inspection consumer.
 
 Round-14 acceptance passed three public catalogue tests on each backend; both examples agree with the actual Node catalogue and independent asammdf metadata. A standard-Python consumer checked four catalogues, five CLI error paths, and two index-selected exports/eight complete rows plus saved receipt verification. The selected CSV and receipt bytes also match the pinned pre-change exporter. This adds one catalogue operation; existing inspect/export arguments, parser behavior and public types remain compatible. See [analysis/README.md](analysis/README.md) and [validation/README.md](validation/README.md).
 

@@ -70,7 +70,7 @@ def main():
             if len(candidates) != 1:
                 raise RuntimeError("Expected exactly one compiled "+name+" executable")
             return candidates[0]
-        export, catalogue, summary = [artifact(name) for name in ["export", "channels", "summary"]]
+        export, catalogue, summary, inspector = [artifact(name) for name in ["export", "channels", "summary", "inspect"]]
         consumers = [
             ("analysis", "check_analysis.py", [export]),
             ("gaps", "check_gaps.py", [export]),
@@ -80,6 +80,7 @@ def main():
             ("summary", "check_summary.py", [summary, catalogue, export, out/"summary"]),
             ("raster", "check_raster.py", [export, out/"raster-files"]),
             ("long-fields", "check_long_fields.py", [export, out/"long-fields"]),
+            ("inspect", "check_inspect.py", [catalogue, inspector, out/"inspect"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -104,6 +105,7 @@ def main():
     print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
     if args.target == "js":
         print("::notice title=MDF4 verified exporter::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(export.read_bytes()).hexdigest())
+        print("::notice title=MDF4 verified inspector::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(inspector.read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

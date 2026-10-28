@@ -8,6 +8,19 @@ extern "js" fn load(path : String) -> Bytes = "(p) => new Uint8Array(require('no
 extern "js" fn failed() -> Unit = "() => { process.exitCode = 1; }"
 
 ///|
+extern "js" fn index_error(message : String) -> Unit = "(s) => { process.stderr.write(s + '\n'); process.exitCode = 1; }"
+
+///|
+fn report_error(message : String, indexed : Bool) -> Unit {
+  if indexed {
+    index_error(message)
+  } else {
+    println(message)
+    failed()
+  }
+}
+
+///|
 struct Output {
   name : String
   unit : String
@@ -34,11 +47,25 @@ fn main {
     failed()
     return
   }
-  match @mdf.open(load(args[0])) {
-    Err(e) => {
-      println("MDF error: \{e.to_repr()}")
-      failed()
+  // The two-argument form keeps every literal channel name, including --index.
+  let indexed = args.length() == 3 && args[1] == "--index"
+  let selected_index = if indexed {
+    let index = @string.parse_int(args[2][:], base=10) catch {
+      _ => {
+        index_error("Channel index must be a non-negative decimal Int")
+        return
+      }
     }
+    if index < 0 {
+      index_error("Channel index must be a non-negative decimal Int")
+      return
+    }
+    Some(index)
+  } else {
+    None
+  }
+  match @mdf.open(load(args[0])) {
+    Err(e) => report_error("MDF error: \{e.to_repr()}", indexed)
     Ok(m) =>
       if args.length() == 1 {
         let out : Metadata = {
@@ -48,13 +75,18 @@ fn main {
         }
         println(@json.to_json(out).stringify())
       } else {
-        match m.extract_channel(args[1]) {
-          Err(e) => {
-            println("channel error: \{e.to_repr()}")
-            failed()
-          }
+        let channel = match selected_index {
+          Some(index) => m.read_channel(index)
+          None => m.extract_channel(args[1])
+        }
+        match channel {
+          Err(e) => report_error("channel error: \{e.to_repr()}", indexed)
           Ok(s) => {
-            let raw = match m.find_channel(args[1]) {
+            let raw_index = match selected_index {
+              Some(index) => Ok(index)
+              None => m.find_channel(args[1])
+            }
+            let raw = match raw_index {
               Ok(i) =>
                 match m.read_raw(i) {
                   Ok(r) => r
