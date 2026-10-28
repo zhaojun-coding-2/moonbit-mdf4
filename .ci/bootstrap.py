@@ -72,8 +72,17 @@ def sdk(args):
     selected = lock["platforms"][platform]
     extract(download(selected["sdk"], args.cache_dir), home)
     extract(download(selected["core"], args.cache_dir), home/"lib")
-    if platform == "windows" and not (home/"bin/moonx.exe").exists():
-        os.link(home/"bin/moon.exe", home/"bin/moonx.exe")
+    if platform == "windows":
+        if not (home/"bin/moonx.exe").exists():
+            os.link(home/"bin/moon.exe", home/"bin/moonx.exe")
+    else:
+        # The official archive requires the same executable-bit/link setup as
+        # the Unix installer before moon can bundle the standard library.
+        binary_dir = home/"bin"
+        if not (binary_dir/"moonx").exists():
+            (binary_dir/"moonx").symlink_to("moon")
+        for path in [*binary_dir.iterdir(), binary_dir/"internal/tcc"]:
+            path.chmod(path.stat().st_mode | 0o111)
     print(json.dumps({"privateSdk": str(home), "version": lock["version"], "archives": selected}))
 
 
