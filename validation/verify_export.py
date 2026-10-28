@@ -31,14 +31,14 @@ def verify(source_bytes,csv_bytes,receipt):
  expected=[table.get('origin_header'),table.get('time_header')]
  require(expected==['start_ns','time_s'],'unknown metadata headers')
  for c in columns:
-  require(isinstance(c.get('channel'),int) and c['channel']>=0,'invalid channel index')
+  require(isinstance(c.get('channel'),int) and not isinstance(c['channel'],bool) and c['channel']>=0,'invalid channel index')
   require(c.get('interpolation') in ['previous','linear'],'invalid interpolation policy')
   header=c['label']+(' ['+c['unit']+']' if c['unit'] else '')
   require(c.get('value_header')==header and c.get('validity_header')==header+'__valid','column/header mismatch')
   require(c.get('valid_value_kinds')==[k for k in ['number','label','data'] if k in c.get('valid_value_kinds',[])],'invalid observed kind list')
   expected.extend([header,header+'__valid'])
  require(rows and rows[0]==expected and len(set(expected))==len(expected),'CSV header mismatch')
- require(isinstance(table.get('row_count'),int) and table['row_count']==len(rows)-1,'row count mismatch')
+ require(isinstance(table.get('row_count'),int) and not isinstance(table['row_count'],bool) and table['row_count']==len(rows)-1,'row count mismatch')
  require(isinstance(table.get('start_ns'),str) and 0<=int(table['start_ns'])<2**64,'invalid exact origin')
  cap=table.get('max_gap_seconds')
  require('max_gap_seconds' in table and (cap is None or isinstance(cap,str) and math.isfinite(float(cap)) and float(cap)>=0),'invalid gap metadata')
@@ -62,7 +62,8 @@ def verify(source_bytes,csv_bytes,receipt):
  if len(rows)==1:require(table['first_time'] is None and table['last_time'] is None,'empty time bounds must be null')
  else:require(table['first_time']==rows[1][1] and table['last_time']==rows[-1][1],'time bounds mismatch')
  for c,n in zip(columns,valid_counts):
-  require(c.get('valid_rows')==n and c.get('invalid_rows')==len(rows)-1-n,'validity count mismatch')
+  # Exclude booleans without changing the existing numeric count comparisons.
+  require(not isinstance(c.get('valid_rows'),bool) and not isinstance(c.get('invalid_rows'),bool) and c.get('valid_rows')==n and c.get('invalid_rows')==len(rows)-1-n,'validity count mismatch')
   require(bool(c['valid_value_kinds'])==(n>0),'observed kinds/count mismatch')
  return {'status':'pass','rows':len(rows)-1,'columns':len(columns),'source_sha256':receipt['source']['sha256'],'csv_sha256':receipt['csv']['sha256']}
 

@@ -58,6 +58,10 @@ python validation/verify_export.py SOURCE_MF4 EXPORTED_CSV RECEIPT_JSON
 
 This verifies SHA-256 and byte counts, UTF-8/CRLF representation, headers, complete rows, exact origin, ordered finite times, bounds, validity counts and observed-kind consistency. It does not reparse MDF or authenticate a signer. A changed receipt and changed payload can be made mutually consistent; the receipt is for content review, without a trust/signature protocol. The exporter exclusively creates only the JSON path; shell redirection controls the CSV path and encoding. Run the verifier against the bytes actually saved, because writing the receipt precedes stdout completion.
 
+JSON `true`/`false` are invalid in integer `row_count`, column `channel`, `valid_rows` and `invalid_rows` metadata, including where their Python values compare equal to 0 or 1. The verifier rejects those substitutions through both its imported function and the saved-file CLI. Genuine integer 0/1 metadata, CSV bytes, fingerprints and other numeric parsing remain unchanged.
+
+The same `check_receipts.py` additionally saves one real two-column, one-row export with channel indices 0/1, then checks complete literal CSV bytes and standard CSV readback. It rejects 14 independent boolean substitutions across the seven integer metadata positions using both consumer entrypoints, checks clean CLI failure output, and retains two previously accepted numeric count spellings. Together with the original cases, the harness now checks nine receipt exports/18 data rows; no historical fixture is changed.
+
 Round 11 also ran `check_gap_precision.py` against the changed exporter (16 scenarios/17 rows). The unchanged round-10 exact comparison code and 149 fixed vectors were preserved byte-for-byte; their successful numerical suite was not rerun.
 
 ## Catalogue-to-export selection (round 14)

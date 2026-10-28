@@ -56,6 +56,48 @@ wrong=copy.deepcopy(meta);wrong['table']['columns'][0]['valid_rows']+=1
 try:verify(source.read_bytes(),mixed,wrong)
 except ValueError:mutations+=1
 else:raise AssertionError('wrong schema count accepted')
+# Exercise the documented saved-file consumer, with genuine integer 0/1
+# controls and independent JSON boolean substitutions; payload bytes stay fixed.
+integer_csv,integer_meta=export('integer-metadata',source,'0',['clock','0','previous','metric','1','previous'])
+integer_rows=[
+ ['start_ns','time_s','clock [s]','clock [s]__valid','metric [u]','metric [u]__valid'],
+ ['18446744073709551615','0','0','true','1','true'],
+]
+literal=io.StringIO(newline='');csv.writer(literal,quoting=csv.QUOTE_ALL,lineterminator='\r\n').writerows(integer_rows)
+assert integer_csv==literal.getvalue().encode('utf-8')
+assert list(csv.reader(io.StringIO(integer_csv.decode('utf-8'),newline=''),strict=True))==integer_rows
+locations=[('row_count',('table','row_count'))]+[(f'column-{i}-{field}',('table','columns',i,field)) for i in (0,1) for field in ('channel','valid_rows','invalid_rows')]
+for i,column in enumerate(integer_meta['table']['columns']):
+ assert type(column['channel']) is int and column['channel']==i
+ assert type(column['valid_rows']) is int and column['valid_rows']==1
+ assert type(column['invalid_rows']) is int and column['invalid_rows']==0
+assert type(integer_meta['table']['row_count']) is int and integer_meta['table']['row_count']==1
+def saved_verify(path):
+ return subprocess.run([sys.executable,str(p/'validation/verify_export.py'),str(source),str(out/'integer-metadata.csv'),str(path)],capture_output=True)
+control=saved_verify(out/'integer-metadata.receipt.json');assert control.returncode==0 and control.stderr==b''
+integer_checks=[]
+for name,path in locations:
+ for boolean in (False,True):
+  altered=copy.deepcopy(integer_meta);target=altered
+  for key in path[:-1]:target=target[key]
+  target[path[-1]]=boolean
+  receipt_path=out/(name+'-'+str(boolean).lower()+'.receipt.json')
+  receipt_path.write_text(json.dumps(altered,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+  loaded=json.loads(receipt_path.read_text(encoding='utf-8'))
+  try:verify(source.read_bytes(),integer_csv,loaded)
+  except ValueError:pass
+  else:raise AssertionError('boolean integer metadata accepted: '+name)
+  rejected=saved_verify(receipt_path)
+  assert rejected.returncode==1 and rejected.stdout==b'' and rejected.stderr.startswith(b'Export verification failed: ') and rejected.stderr.endswith(b'\n') and b'Traceback' not in rejected.stderr,(name,rejected.stdout,rejected.stderr)
+  (out/(receipt_path.stem+'.stderr')).write_bytes(rejected.stderr)
+  integer_checks.append({'path':list(path),'replacement':boolean,'expected':'reject','import':'rejected','cli_exit':rejected.returncode})
+# Preserve count spellings already accepted before this boolean-only correction.
+for name,valid,invalid in [('decimal','1.0','0.0'),('exponent-signed-zero','1e0','-0.0')]:
+ text=json.dumps(integer_meta,ensure_ascii=False).replace('"valid_rows": 1','"valid_rows": '+valid).replace('"invalid_rows": 0','"invalid_rows": '+invalid)
+ path=out/(name+'.receipt.json');path.write_text(text+'\n',encoding='utf-8')
+ assert verify(source.read_bytes(),integer_csv,json.loads(text))['status']=='pass'
+ accepted=saved_verify(path);assert accepted.returncode==0 and accepted.stderr==b'' and json.loads(accepted.stdout)==json.loads(control.stdout)
+(out/'integer-metadata-checks.json').write_text(json.dumps({'canonical_integer_control':'pass','existing_numeric_spellings_preserved':2,'csv_sha256':hashlib.sha256(integer_csv).hexdigest(),'cases':integer_checks},indent=2)+'\n',encoding='utf-8')
 # Existing output paths are never overwritten and failed creation emits no CSV.
 sentinel=out/'existing.json';sentinel.write_bytes(b'keep this exact file');old=sentinel.read_bytes()
 failures=[['--receipt',str(sentinel)],['--receipt',str(out/'absent'/'r.json')],['--receipt'],['--receipt',str(out/'d1.json'),'--receipt',str(out/'d2.json')],['--max-gap','0.5','--max-gap','0.25']]
@@ -68,4 +110,4 @@ assert not (out/'d1.json').exists() and not (out/'d2.json').exists()
 for label in ['--receipt','--max-gap']:
  cp=invoke(source,'0',[label,'1','previous'],[]);assert cp.returncode==0,cp.stderr
  assert list(csv.reader(io.StringIO(cp.stdout.decode('utf-8'),newline='')))[0][2]==label+' [u]'
-print(json.dumps({'status':'pass','receipt_exports':len(runs),'receipt_data_rows':sum(v['rows'] for v in runs),'mutations_rejected':mutations,'error_paths':len(failures),'old_flag_labels_preserved':2,'compiled_export_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'reference':'Python standard csv/json/hashlib plus explicit complete-row expectations; independent asammdf fixture evidence'}))
+print(json.dumps({'status':'pass','receipt_exports':len(runs),'receipt_data_rows':sum(v['rows'] for v in runs),'mutations_rejected':mutations,'boolean_integer_metadata_rejected':len(integer_checks),'boolean_integer_cli_rejections':len(integer_checks),'integer_controls':3,'error_paths':len(failures),'old_flag_labels_preserved':2,'compiled_export_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'reference':'Python standard csv/json/hashlib plus explicit complete-row expectations; independent asammdf fixture evidence'}))
