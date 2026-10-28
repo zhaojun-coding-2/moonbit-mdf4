@@ -1,0 +1,30 @@
+{
+  "origin": "Own MIT unit_span fixture; same payload read as Number, enum Label, fixed Data; no vendor data",
+  "base_sha256": "5b5e6f36391005a203b0e89f55bc726398fda122ed165f6be266ef94eeab1064",
+  "mixed_sha256": "7bcd63e7f1aa923c5c1f2f97eebed1e767580efa8bdbcac365c4e35bf7072020",
+  "channel_indices": {
+    "time": 0,
+    "identity": 1,
+    "state": 2,
+    "blob": 3
+  },
+  "source_values": {
+    "identity": [
+      1,
+      2
+    ],
+    "state": [
+      "1",
+      "2"
+    ],
+    "blob_hex": [
+      "000000000000f03f",
+      "0000000000000040"
+    ]
+  },
+  "relative_times": [
+    0,
+    1
+  ],
+  "start_ns": "18446744073709551615"
+}

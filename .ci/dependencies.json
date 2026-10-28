@@ -1,0 +1,8 @@
+[
+  {"module":"gmlewis/zlib","version":"0.21.17","url":"https://download.mooncakes.io/user/gmlewis/zlib/0.21.17.zip","sha256":"7667bd6da179bc40d8834ef75b331650cfa08a124af5f12f06edb137d6bd9d49","file":"zlib.zip"},
+  {"module":"gmlewis/flate","version":"0.36.17","url":"https://download.mooncakes.io/user/gmlewis/flate/0.36.17.zip","sha256":"bf369b9198db8808c1c48d75585a39b22916ba830ea55a550e1c039fdc250527","file":"flate.zip"},
+  {"module":"gmlewis/hash","version":"0.21.2","url":"https://download.mooncakes.io/user/gmlewis/hash/0.21.2.zip","sha256":"10ed11afda6c7a1f369675105cc0d31c4ad29616eec1319895a4eb5c25f99501","file":"hash.zip"},
+  {"module":"gmlewis/io","version":"0.23.20","url":"https://download.mooncakes.io/user/gmlewis/io/0.23.20.zip","sha256":"64c94a1cdc79ec52878dc172cbb9e88eb30fd26444cbeaf13e79f7750138e5f6","file":"io.zip"},
+  {"module":"gmlewis/base64","version":"0.16.14","url":"https://download.mooncakes.io/user/gmlewis/base64/0.16.14.zip","sha256":"1460453cd8b0c2e7534b68ec772c31b8a2a03bfaa24496c78dba17f7ce97d683","file":"base64.zip"},
+  {"module":"moonbit-community/NyaCSV","version":"0.3.4","commit":"19ab9ca861f13a0663dc6e168b764507fa0e76ba","url":"https://codeload.github.com/moonbit-community/NyaCSV/zip/19ab9ca861f13a0663dc6e168b764507fa0e76ba","sha256":"d2b3dc89de712409c67b8c7417278f829fc0a67dfcece8dbfe48262cbaca7fba","file":"nyacsv.zip","stripRoot":true,"optionalNativeConsumer":true}
+]

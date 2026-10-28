@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zhaojun-coding/mdf4/analysis/fixture"
+
+// Values
+pub fn binary() -> Bytes
+
+pub fn empty() -> Bytes
+
+pub fn labels() -> Bytes
+
+pub fn nonfinite() -> Bytes
+
+pub fn roundtrip() -> Bytes
+
+pub fn single() -> Bytes
+
+pub fn wide_clock() -> Bytes
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

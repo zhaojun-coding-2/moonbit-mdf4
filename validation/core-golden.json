@@ -1,0 +1,158 @@
+{
+  "identity": {
+    "values": [
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "linear": {
+    "values": [
+      -3.0,
+      -0.5,
+      2.0,
+      4.5,
+      7.0,
+      9.5
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "rational": {
+    "values": [
+      1.5,
+      3.0,
+      5.5,
+      9.0,
+      13.5,
+      19.0
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "formula": {
+    "values": [
+      0.0,
+      1.8414709848078965,
+      4.909297426825682,
+      9.141120008059866,
+      15.243197504692072,
+      24.04107572533686
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "table": {
+    "values": [
+      10.0,
+      20.0,
+      30.0,
+      40.0,
+      35.0,
+      30.0
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "enum": {
+    "values": [
+      "Idle",
+      "Run",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "timestamps": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "invalid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+import {
+  "zhaojun-coding/mdf4" @mdf,
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
+
+import {
+  "zhaojun-coding/mdf4/testdata" @fixture,
+  "zhaojun-coding/mdf4/analysis/fixture" @special,
+  "zhaojun-coding/mdf4/analysis/precision_fixture" @precision,
+  "zhaojun-coding/mdf4/analysis/review_fixture" @review,
+} for "wbtest"
+
+import {
+  "zhaojun-coding/mdf4" @mdf,
+  "zhaojun-coding/mdf4/analysis/catalog_fixture",
+  "zhaojun-coding/mdf4/analysis/summary_fixture",
+  "zhaojun-coding/mdf4/analysis/fixture" @special,
+  "zhaojun-coding/mdf4/analysis/review_fixture" @review,
+  "moonbitlang/core/json",
+} for "test"

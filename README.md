@@ -1,0 +1,207 @@
+# MDF4 for MoonBit
+
+`zhaojun-coding/mdf4` is a MoonBit library for finalized **MDF 4.10/4.11 fixed-record measurements**. It reads record/block layouts, retains exact integer bits and validity, applies six conversion categories, and aligns channels onto an explicit time grid. The core runs on JS and Wasm-GC without Python. A small Node CLI adapts local file I/O.
+
+This is a bounded reader based on public ASAM descriptions and licensed implementation references. It is not a claim of full ASAM conformance, complete GES support, or official contest acceptance.
+
+Repository: [zhaojun-coding-2/moonbit-mdf4](https://github.com/zhaojun-coding-2/moonbit-mdf4). The source module and original MIT attribution remain `zhaojun-coding/mdf4` / `zhaojun-coding`; the repository account is the import maintainer. Reproducible private setup and the real JS/Wasm-GC CI commands are documented in [.ci/README.md](.ci/README.md).
+
+## Run
+
+Validated toolchain: `moon 0.1.20261023` with `moonc 0.10.17`; Node.js is used for the JS target. Dependency versions are pinned in `moon.mod` (zlib 0.21.17, io 0.23.20, flate 0.36.17; transitive versions/licenses are in THIRD_PARTY.md).
+
+The retained validation used compatible local sources for those gmlewis modules as workspace members. The source archive excludes machine-specific `moon.work` paths, SDKs and dependency caches. When preparing an extracted checkout with local sources, create the same workspace shape, replacing these placeholders with the matching zlib, flate, hash, io and base64 module directories:
+
+```powershell
+moon work init . PATH_TO_ZLIB PATH_TO_FLATE PATH_TO_HASH PATH_TO_IO PATH_TO_BASE64
+```
+
+A fresh registry-only installation of these historical dependency releases has not been revalidated. The optional NyaCSV consumer is a separate module with its own pinned-source setup, described in `example/csv_consumer/README.md`.
+
+```powershell
+moon check --target js
+moon test -p zhaojun-coding/mdf4 --target js
+moon test -p zhaojun-coding/mdf4 --target wasm-gc
+moon run example --target wasm-gc
+moon run cmd/inspect --target js -- testdata/core-c2.mf4 linear
+```
+
+`example` is a runnable consumer of the public API. The final command prints JSON with exact raw integer strings, physical values, timestamps and a validity mask. Omit the channel name to list metadata. The CLI is JS-only; the library and example also run on Wasm-GC.
+
+The checked-in fixtures are self-created, redistributable artificial measurements. Python is needed only to regenerate independent reference evidence, never for normal use or tests. `validation/` documents regeneration.
+
+## Library use
+
+Add `zhaojun-coding/mdf4` to a consumer's imports after making the local module available. This Mooncakes module has not been published by this task; use the local workspace setup. GitHub source publication does not imply a Mooncakes release.
+
+```moonbit
+match @mdf.open(file_bytes) {
+  Err(error) => { /* handle header, layout or resource error */ }
+  Ok(file) => match file.extract_channel("Speed") {
+    Err(error) => { /* missing/ambiguous channel, unsupported conversion, etc. */ }
+    Ok(series) => {
+      // series.timestamps, series.values and series.valid have equal lengths.
+      // Use @mdf.resample(series, raster, Previous or Linear) explicitly.
+    }
+  }
+}
+```
+
+Use `file.channels()` and indexed `read_raw(index)` / `read_channel(index)` when names repeat. `RawValue::Unsigned` and `Signed` preserve all 64 bits; physical numeric values use Double and may round integers above 2^53. `extract_channel` returns `Series`, not `Array[Double]`: enumerations return `Label`, binary fields return `Data`, and invalid samples retain `valid=false`. Invalid samples are retained and converted; conversion domain errors remain errors. Header `start_ns()` stays UInt64; per-series timestamps are relative master seconds.
+
+## Multi-channel analysis and CSV
+
+The additive `zhaojun-coding/mdf4/analysis` package turns selected channels into one typed table on an explicit raster. This bridges MDF sampling/validity semantics to analysis tools. General table and CSV tools already exist, including [MoonFrame](https://github.com/ihb2032/MoonFrame) and [NyaCSV](https://mooncakes.io/docs/moonbit-community/NyaCSV); this package focuses on MDF selection, per-column interpolation and retained validity. The ecosystem review and candidates are recorded in the feature-08 receipt; bounded searches do not establish uniqueness.
+
+### Find channels before exporting
+
+For an unfamiliar file, run `moon run cmd/channels --target js -- YOUR_FILE.mf4`. It prints a versioned JSON catalogue with explicit global `index`, channel `group`, `name`, `unit`, master/sync codes and raw storage type/bit count. The indices are accepted directly by `read_channel`, analysis requests and export. Duplicate names stay separate; channel order is unchanged. For example, two channels named `速度🚲` can be distinguished by group and km/h versus m/s units:
+
+```powershell
+moon run example/catalog --target wasm-gc
+moon run cmd/channels --target js -- analysis/catalog_fixture/catalog.mf4
+moon run cmd/export --target js -- analysis/catalog_fixture/catalog.mf4 "0,0.25,0.5,0.75,1" ms 3 previous kmh 1 previous --receipt selected.json > selected.csv
+python validation/verify_export.py analysis/catalog_fixture/catalog.mf4 selected.csv selected.json
+```
+
+Those indices belong to the supplied fixture; use the catalogue of your own file when selecting. `@analysis.channel_catalog_json(file)` supplies the same JSON on JS/Wasm-GC after opening a file. It reports exact UInt64 origin as a string, preserves empty inventories and reads existing metadata without executing physical channel conversion. Raw storage codes do not determine the converted Value kind or choose an interpolation policy. Unit text follows the root API; no XML interpretation or unit conversion is added. The CLI still uses the existing in-memory `open` and its data validation/resource limits. It is not a header-only scan, does not choose a raster and does not certify that every listed channel can be read physically.
+
+Round-14 acceptance passed three public catalogue tests on each backend; both examples agree with the actual Node catalogue and independent asammdf metadata. A standard-Python consumer checked four catalogues, five CLI error paths, and two index-selected exports/eight complete rows plus saved receipt verification. The selected CSV and receipt bytes also match the pinned pre-change exporter. This adds one catalogue operation; existing inspect/export arguments, parser behavior and public types remain compatible. See [analysis/README.md](analysis/README.md) and [validation/README.md](validation/README.md).
+
+### Inspect the chosen source
+
+`moon run cmd/summary --target js -- YOUR_FILE.mf4 INDEX` reads the chosen global index and prints physical Value kinds, original sample/validity counts, source-order clock endpoints and a strict-time-order flag. It closes the gap between raw catalogue metadata and choosing an explicit raster/policy. For example, the catalogue below still describes signed-integer storage, while the selected source converts to text labels and has calibrated endpoints `10.5,11.5`:
+
+```powershell
+moon run example/summary --target wasm-gc
+moon run cmd/channels --target js -- analysis/summary_fixture/calibrated.mf4
+moon run cmd/summary --target js -- analysis/summary_fixture/calibrated.mf4 3
+moon run cmd/export --target js -- analysis/summary_fixture/calibrated.mf4 "10.5,11.5" state 3 previous --receipt state.json > state.csv
+python validation/verify_export.py analysis/summary_fixture/calibrated.mf4 state.csv state.json
+```
+
+`@analysis.channel_summary_json(file, index)` returns the JSON in a Result and propagates the existing MdfError on selected-read failure. Value kinds cover **all converted source samples**, including invalid ones. Empty sources have no observed kind and explicit null endpoints. Clock strings round-trip the reader's actual Double endpoints, including `-0`; exact UInt64 origin stays separate. Endpoints retain original order, so they are not min/max when `strict_time_order=false`. Empty/single sources have strict order. Counts/endpoints do not reconstruct the full or a uniform raster: the example explicitly chooses only endpoints and Previous. No sorting, row dropping or automatic policy is added. Use `read_channel(index)` for full values/timestamps. The summary still performs the existing in-memory physical read and its validation/limits.
+
+Round-15 acceptance passed five new public tests on each backend, six actual summaries, eight CLI errors, and two endpoint-selected exports/three CSV rows plus saved receipt checks. Independent physical readback is recorded; one asammdf 8.8.28 ALL_INVALID-mask discrepancy is retained and that mask uses an explicit literal flag expectation. Example/CLI objects agree, and old/new catalogue, CSV and receipt bytes agree on the new source. Earlier passing suites were not rerun.
+
+### Align selected channels
+
+For a long or saved explicit raster, pass a quoted `"@PATH"` in the same RASTER position. The UTF-8 file (optional BOM) contains a JSON array of decimal clock strings, for example `["10.5","10.625","10.9","11.5"]`. This avoids putting every point in process arguments; it does not generate a regular grid. A measured 4096-point irregular raster exceeded Windows process argument capacity before Node started, while the file form exported all points within the unchanged cell budget.
+
+```powershell
+moon run example/raster --target wasm-gc
+moon run cmd/export --target js -- analysis/summary_fixture/calibrated.mf4 "@example/raster/grid.json" state 3 previous --receipt raster.json > raster.csv
+python validation/verify_export.py analysis/summary_fixture/calibrated.mf4 raster.csv raster.json
+```
+
+The file format uses **strings**, not JSON numbers: they follow the same existing binary64 number parser as inline clocks and preserve `-0`. Actual points must be finite and strictly increasing; `[]` is accepted. The path resolves from the working directory. `@` is checked only in RASTER, so labels and old inline/empty-raster forms retain their meaning. `@analysis.parse_raster_json(text)` supplies the same parsing contract on JS/Wasm-GC. Input/JSON/table processing remains in memory, with existing alignment cell limits; receipt format is unchanged and its CSV fingerprint includes the interpreted time column, without separately fingerprinting the raster file.
+
+Round-16 acceptance passed four new parser tests per backend, 4096 large-grid clock-bit readbacks, four file-mode exports/4101 complete rows and four saved receipt checks. Seven invalid-file cases plus the existing cell-budget rejection emit no CSV/receipt. Both examples agree with actual output; a fresh four-point case matches old/new inline and file-mode bytes. Frozen-15 tests/export cases were not rerun.
+
+```powershell
+moon run example/table --target wasm-gc
+moon run cmd/export --target js -- testdata/unsorted.mf4 "0,0.25,0.5,0.75,1" held 1 previous sensor 3 linear > aligned.csv
+```
+
+The pure example prints a JSON report containing the CSV, row/column counts and exact origin. The Node command writes CSV only to stdout. Its arguments are `FILE RASTER LABEL INDEX POLICY [LABEL INDEX POLICY ...]`: the raster is comma-separated relative seconds; channel indices are zero-based positions in `file.channels()` (the inspect metadata name array has that order); policies are `previous` or `linear`. Indices distinguish repeated source names, and labels distinguish output columns. No time re-zeroing, row dropping or extrapolation occurs.
+
+Add `"zhaojun-coding/mdf4/analysis" @analysis` alongside the root import. After opening the fixture above:
+
+```moonbit
+match @analysis.align(file, [
+  { channel: 1, label: "held", policy: @mdf.Previous },
+  { channel: 3, label: "sensor", policy: @mdf.Linear },
+], [0.0, 0.25, 0.5, 0.75, 1.0], max_cells=10000) {
+  Ok(table) => {
+    // table.columns() retains typed values, validity, source name/unit/index.
+    // table.start_ns() remains UInt64; returned grid/column arrays are snapshots.
+    println(table.to_csv())
+  }
+  Err(error) => { /* InvalidRequest, CellLimit or labelled source-channel error */ }
+}
+```
+
+CSV columns are `start_ns,time_s`, then each `label [unit]` value and its `__valid` companion; brackets are omitted for empty units. Invalid/outside-domain cells are blank/false, while valid empty labels are blank/true. Exact origin integers are decimal text; numeric NaN/Infinity remain textual when their record validity is true. Byte values use lowercase `0x` hex. Fields are quoted, embedded quotes doubled, and records use CRLF. This is data interchange: spreadsheet formula neutralization and an MDF round-trip encoding are outside this export contract.
+
+Labels and generated headers must be unique, Linear requires numeric samples, and grid times must be finite/strictly increasing. Empty grids produce a header-only CSV. The default 1,000,000-cell limit bounds rows times selected columns before extraction; it does not bound total bytes or serialized text. The reader, aligned arrays and CSV string are held in memory. The separate AnalysisError leaves existing MdfError matches compatible. See [analysis/README.md](analysis/README.md) for the exact new API and schema.
+
+New acceptance: 7 analysis groups plus 18 selected 05-07 regression groups passed on both JS and Wasm-GC (25 per target); both example reports match an independent five-row table. Python's standard CSV reader validated five file-export scenarios/18 data rows and ten CLI error paths, including Unicode/quotes/newlines, binary values, valid empty labels and UInt64 maximum origin. No new runtime dependency was added, and no MoonFrame runtime integration or remote publication is claimed.
+
+### Bound stale interpolation
+
+Use the additive `@analysis.align_with_gap(file, requests, raster, max_gap=0.25)` when held data or a long interpolation bracket must stop being considered valid after 0.25 seconds. `Previous` limits the age since the held observation; `Linear` limits the full bracketing source interval. Equality is allowed. Distances are compared exactly for the actual binary64 endpoints and cap, including when ordinary subtraction would round an over-limit distance onto the boundary. Exact observations retain their source validity, and an invalid source sample is never made valid. The same finite nonnegative limit applies to all selected columns; zero allows only exact observations. `table.max_gap()` returns `Some(seconds)` for this operation and `None` for the original `align`, whose signature and unrestricted behavior remain unchanged.
+
+```powershell
+moon run example/gaps --target wasm-gc
+moon run cmd/export --target js -- testdata/unsorted.mf4 "0,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1" held 1 previous sensor 3 linear --max-gap 0.25 > limited.csv
+```
+
+The pure example compares unrestricted and limited CSV on the same nine-row grid. Opted-in gap rejection changes validity to false and CSV cells to blank; typed computed values, requested rows, units and exact origin remain available. The trailing CLI option preserves the old positional form, including a column label literally named `--max-gap`.
+
+Numeric CSV formatting now explicitly retains `-0` for negative-zero values and requested times. This fixes a reproduced sign loss in default number printing; an independent binary64 readback checks signed zero, subnormal values and maximum finite values. New acceptance passed 12 analysis groups on each target; the rebuilt Node consumer passed the new 11 scenarios/52 rows/six errors plus the unchanged five-scenario/18-row/ten-error export acceptance. Unrestricted example CSV is byte-identical to its pre-change consumer baseline. See the round-09 receipt and `validation/check_gaps.py`.
+
+### Review an exported table
+
+Plain CSV can give a numeric value and an enum label the same text, and it does not record selected channel indices or interpolation settings. `table.schema_json()` adds a versioned MDF analysis description: source indices/names/units, aliases, policies, gap cap, exact origin, row counts, validity counts and observed kinds of valid values. It runs on both JS and Wasm-GC. Empty/all-invalid columns report no observed kind rather than guessing their type.
+
+The Node exporter can optionally create a JSON receipt binding that schema to the SHA-256 and byte length of the loaded MDF source and the exact UTF-8 CSV:
+
+```powershell
+moon run example/receipt --target wasm-gc
+moon run cmd/export --target js -- analysis/review_fixture/mixed.mf4 "0,0.5,0.75,1" number 1 linear state 2 previous bytes 3 previous --max-gap 0.5 --receipt review.json > review.csv
+python validation/verify_export.py analysis/review_fixture/mixed.mf4 review.csv review.json
+```
+
+Use a new receipt path: `--receipt` refuses an existing file and creation errors emit no CSV. It accepts either order with trailing `--max-gap`; without it, no sidecar is created and CSV output is unchanged. The shell controls the redirected CSV file and its overwrite/encoding behavior; the verifier checks the bytes actually saved. The receipt is written before stdout emission, so its existence alone does not prove a complete saved CSV. It supplies content fingerprints and consistency checks, without a signature or a reversible MDF encoding. The paired CSV holds the full raster; the schema holds its count and endpoints.
+
+The saved-byte verifier accepts legal text fields beyond Python CSV's default field ceiling. After checking the actual file fingerprints, it temporarily bounds CSV parsing by the actual saved byte length and restores the caller's previous parser setting on success or error. Quoting, UTF-8 text and validity checks are preserved; this does not change the MDF reader or alignment budgets. See `validation/check_long_fields.py` for a reproducible long-text export and strict-error check.
+
+Round-11 acceptance passed four schema groups on each backend, byte-identical JS/Wasm-GC example reports, and eight actual Node receipt exports (17 rows). Independent Python checks rejected four controlled content/metadata mutations and verified five CLI error paths. The existing exact-gap consumer's 16 scenarios also passed with the changed option parser; round-10 numerical code and its 149-vector matrix remain unchanged. See [analysis/README.md](analysis/README.md) and [validation/README.md](validation/README.md) for the schema contract and reproduction commands.
+
+### Calibrated master clocks and selective reading
+
+`read_raw(master_index)` retains raw clock samples; `Series.timestamps` uses the time master's physical conversion before alignment. For a master with raw times `0,1` and CC1 conversion `2*x+5`, supply raster times in the resulting `5,7` coordinate system. A linear bracket spans two physical seconds, so an interior point fails `max_gap=1.5` even though the raw clock difference is one. The exact HD origin stays separate and unchanged. A zero-scale conversion can yield duplicate physical times: raw/Series extraction remains available, while alignment returns `InvalidTime` through the labelled channel error.
+
+Physical conversion is performed for requested channels and their time master. An unsupported conversion on another channel sharing the records does not block a valid selection. That channel's raw access remains available; selecting it physically returns `UnsupportedConversion`, and an export failure emits no CSV or optional receipt.
+
+The bounded round-12 audit reproduced these paths using three new report-only derivatives and independent asammdf clock readback. Public consumers agreed on JS/Wasm-GC, including input/nested-byte array ownership; 12 new actual CLI scenarios covered 20 complete CSV rows and three explicit error cases. No new product defect was reproduced and no runtime code or API changed. Fixture construction, consumers, literal expectations and complete outputs are retained in the round-12 execution receipt; historical passing suites were not rerun.
+
+## Supported contract
+
+- ID and HD/DG/CG/CN/CC/TX data paths; DT, DZ, HL/DL concatenation; fixed sorted records and unsorted record IDs of 1/2/4/8 bytes. Counts, spans, chains and limits are checked.
+- Integer widths 1–64, bit offsets 0–7, LE/BE and two's-complement, including fields spanning nine bytes. This is MDF offset arithmetic, not CAN DBC sawtooth numbering. IEEE Float32/64 LE/BE, Latin-1/UTF-8 fixed strings and fixed byte fields are readable. CN composition links are traversed; channel-array (CA), VLSD/virtual/MLSD and other sample types are explicitly unsupported when encountered/read.
+- CC: identity (0), linear (1), rational (2), algebraic expression (3), interpolated table (4), value-to-text enum (7, TX references and default text). Other conversion codes remain accessible through the separate raw API; physical conversion returns `UnsupportedConversion`. Nested enum conversion references are not evaluated.
+- Formula grammar: finite decimal/exponent literals; `X`, `X1`, `PI`, `pi`, `e`; parentheses; unary `+/-`; binary `+ - * / ^ **` (right-associative power, above unary minus); `sin cos tan asin acos atan exp ln log log10 sqrt abs floor ceil`, plus two-argument `min max pow`. `log` is natural log. Unknown names, invalid syntax, non-finite/domain results and limits return `InvalidFormula`. This is an explicit mathematical subset, not full GES.
+- DZ mode 0/1: RFC1950 zlib/Deflate, checksum read through EOF, exact output size, inverse byte transpose and untransposed tail remainder.
+- Record invalidation bits and always-invalid channels are preserved. A unique valid time master (`kind=2`, `sync=1`) is required to produce a series. Other master kinds are not silently interpreted as time. Extraction retains record order; alignment rejects duplicate, reversed or non-finite time.
+- Resampling: strictly increasing finite source/grid; `Previous` or numeric `Linear`. Outside the source domain yields `valid=false` and a NaN placeholder; invalid interpolation endpoints yield `valid=false`. Enums require `Previous`; no extrapolation or silent row deletion. Empty signals yield an invalid aligned series.
+
+No writer, 4.2 column storage, bus database decoder, or universal unfinished-file repair is included. An `UnFinMF` identifier or pending finalization flags returns `UnfinalizedFile` before traversal. Unknown metadata that is not needed for these data paths is not evaluated. Unit text is read from the CN unit link; XML metadata is exposed as text, not a full semantic XML model.
+
+`open(bytes, limits=...)` is an in-memory API, not streaming file I/O. Default limits are 64 MiB decoded data per DG, 100,000 topology/data blocks per traversal and 1,000,000 total records. Address bounds are checked before narrowing to host indices. Limits do not promise total peak allocation equal to max_output: input bytes, copied records and returned series also occupy memory.
+
+## Validation evidence
+
+The optional standalone [native CSV consumer](example/csv_consumer/README.md) uses an exact upstream NyaCSV source pin to consume producer-generated CSV plus schema on JS/Wasm-GC. It keeps valid empty labels distinct from invalid blanks and numeric-looking labels distinct from numbers, retaining Data hex, nonfinite number text, Unicode and string clocks/origin. Its schema-aware output is tagged text; it does not infer numeric types, verify receipts or reverse MDF. Its dependency/workspace is separate from the root library. The registry 0.3.3 compatibility failure and the explicit upstream 0.3.4 source pin are documented in the example.
+
+The original implementation baseline passed 12 meaningful cases/groups on each target: six CC categories in three independently written layouts (uncompressed / zlib / transpose+zlib), malformed input, exact integer boundaries, formula/domain errors, masked alignment, interleaved records and raw access for unsupported conversion.
+
+256 bit-field vectors cover widths 1/7/8/9/31/32/63/64, all eight offsets, both byte orders and signs. `asammdf 8.8.28` produced exact scalar results for 200; 56 cases exposed array/overflow/floating-raw limitations in that oracle and instead use independent Python arbitrary-precision byte-integer arithmetic. Those limitations and first failures are retained in external execution evidence; they are not presented as 256 successful asammdf comparisons.
+
+A CSS Electronics device recording was tested locally: the original `UnFinMF 4.11` was rejected; an independently finalized asammdf output then matched 8 scalar channels / 14,520 samples in raw values, masks, time and physical values. The preprocessing is external to this library. No CSS recording or DBC is distributed here and **CC-BY4 was not established**. See THIRD_PARTY.md for data provenance and the distinction between local evaluation and redistribution.
+
+The exact commands, first failures, oracle options, hashes and final source identity are in the accompanying `implementation-03` execution receipt. There is no claim of a global error bound, complete road-condition coverage, Mooncakes publication or passing remote CI.
+
+The bounded round-13 storage audit found no new product defect. New report-only derivatives keep the six original records but store them under HL and two chained DLs: variable 2/1/3-record transposed-zlib chunks, and equal-length 5/1-record chunks with a short final block. Independent Python byte reconstruction and asammdf 8.8.28 readback preserve values, times and the original invalidation mask. Public consumers agree on JS/Wasm-GC; eight new actual Node CLI scenarios cover 12 complete CSV rows and two errors. The exact 186-byte cumulative decoded budget passes, while 185 bytes returns LimitExceeded; this budget bounds decoded DG bytes rather than peak memory. Corrupting only the last chunk's Adler checksum returns CorruptedBlock and produces no export CSV/receipt. Runtime code, APIs, old fixtures and historical passing suites remain unchanged; the round-13 receipt retains construction, first probe failure/correction and complete outputs.
+
+
+The `deep-repair-05-20261028` follow-up fixes intermediate overflow in numeric linear resampling and CC4 interpolation: finite opposite-sign values and very wide finite time/key intervals now retain representable results. Endpoint values and invalid masks are retained, and subnormal time intervals remain unscaled. Four numerical regression groups use independent high-precision Decimal reference values; two reader groups add record IDs of 2/4/8 bytes (including unsigned high bits), 64-bit block bounds and declared DZ output-budget failures. The targeted JS and Wasm-GC passes each ran 17 groups (six new plus eleven relevant existing groups); the unchanged 256-vector group and historical CSS comparison were reused, not rerun. Examples on both backends and the Node file consumer also passed. A self-created 4500-DL chain was accepted by asammdf and the existing JS reader; generated JS already uses a tail-call loop, so no chain rewrite was needed. Public interfaces are unchanged. Detailed first failures, independent expectations, logs, source hashes and the new source archive are in that follow-up receipt.
+
+
+The `deep-repair-06-max-20261028` follow-up replaces incremental floating-point formula-literal accumulation with the installed core decimal parser after the existing restricted lexer and limits. Reproduced errors for `0.29`, `5e-324` and a large mantissa with a compensating negative exponent are fixed; singleton CC4 tables now return `InvalidFormula` for NaN input instead of panicking. Seven new semantic groups cover these failures, syntax limits, non-ASCII fixed text/bytes and explicit time-master errors. JS and Wasm-GC each passed 22 targeted groups, including the relevant prior golden/edge and round-05 interpolation tests. Three self-created MDF file cases also passed the rebuilt Node consumer: 18 values matched independently computed binary64 bits exactly, with raw/time/masks unchanged. Public interfaces are unchanged; source/build identities and first failures are recorded in that follow-up receipt. This does not claim correctly rounded arbitrary formula expressions or a universal conversion error bound.
+
+
+The `deep-repair-07-max-20261028` follow-up fixes CC2 intermediate overflow/underflow, premature zero denominators and a silent zero for a representable subnormal ratio. A private integer-times-power-of-two accumulator evaluates each quadratic over the actual binary64 coefficients and numeric input, then rounds the quotient once; true zero denominators and non-finite/overflow results still return errors. CC1 retains its ordinary finite path and uses the same exact accumulator when an overflowing product can be cancelled by the offset. The core BigInt import is supplied by the installed MoonBit standard library, not a downloaded runtime package. JS and Wasm-GC each passed 29 targeted groups, including a fixed 38-case independent Fraction matrix (34 finite bit-pattern checks and four error cases), cancellation close to a pole, subnormal/midpoint rounding and prior round-05/06 regressions. Five self-created MDF cases passed the rebuilt Node consumer: 30 values match independent binary64 bits and retain raw/time/masks. Public interfaces remain unchanged. This does not change the documented Double precision of physical integer inputs above 2^53, promise correctly rounded general formula expressions, or add public arbitrary-precision APIs. Source/build identities, failures and the new archive are recorded in the round-07 receipt.
+
+
+Round 10 corrects the independently reported round-09 max-gap counterexample: an exact age/span of 10000000000000001 was rounded to the inclusive cap 10000000000000000. A private error-free subtraction residual now resolves rounded-equality cases, preserving true equality, exact observations and unrestricted align. Both original public/file-consumer cases now become invalid. JS/Wasm-GC optimized builds each passed 9 targeted groups, including 149 exact Fraction boundary vectors constructed from pinned binary64 bits; consumers passed 16 new scenarios/17 rows plus 11 existing gap scenarios/52 rows/six error paths. No API, gap policy, source sample or supported domain was removed. The frozen 09 artifacts and explicit 09-to-10 evidence binding are retained in the round-10 receipt; external re-audit acceptance is not claimed.

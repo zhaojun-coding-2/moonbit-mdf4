@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zhaojun-coding/mdf4/analysis"
+
+import {
+  "moonbitlang/core/debug",
+  "zhaojun-coding/mdf4",
+}
+
+// Values
+pub fn align(@mdf4.MdfFile, Array[ChannelRequest], Array[Double], max_cells? : Int32) -> Result[AlignedTable, AnalysisError]
+
+pub fn align_with_gap(@mdf4.MdfFile, Array[ChannelRequest], Array[Double], max_gap~ : Double, max_cells? : Int32) -> Result[AlignedTable, AnalysisError]
+
+pub fn channel_catalog_json(@mdf4.MdfFile) -> String
+
+pub fn channel_summary_json(@mdf4.MdfFile, Int32) -> Result[String, @mdf4.MdfError]
+
+pub fn parse_raster_json(String) -> Result[Array[Double], AnalysisError]
+
+// Errors
+pub(all) suberror AnalysisError {
+  InvalidRequest(String)
+  CellLimit
+  Channel(String, Int32, @mdf4.MdfError)
+} derive(Eq, @debug.Debug)
+pub fn AnalysisError::equal(Self, Self) -> Bool
+pub fn AnalysisError::not_equal(Self, Self) -> Bool
+pub fn AnalysisError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub(all) struct AlignedColumn {
+  channel : Int32
+  label : String
+  name : String
+  unit : String
+  policy : @mdf4.Interpolation
+  values : Array[@mdf4.Value]
+  valid : Array[Bool]
+} derive(@debug.Debug)
+pub fn AlignedColumn::to_repr(Self) -> @debug.Repr
+
+pub struct AlignedTable {
+  origin : UInt64
+  grid : Array[Double]
+  data : Array[AlignedColumn]
+  gap : Double?
+}
+pub fn AlignedTable::column_count(Self) -> Int32
+pub fn AlignedTable::columns(Self) -> Array[AlignedColumn]
+pub fn AlignedTable::max_gap(Self) -> Double?
+pub fn AlignedTable::row_count(Self) -> Int32
+pub fn AlignedTable::schema_json(Self) -> String
+pub fn AlignedTable::start_ns(Self) -> UInt64
+pub fn AlignedTable::timestamps(Self) -> Array[Double]
+pub fn AlignedTable::to_csv(Self) -> String
+
+pub(all) struct ChannelRequest {
+  channel : Int32
+  label : String
+  policy : @mdf4.Interpolation
+} derive(@debug.Debug)
+pub fn ChannelRequest::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

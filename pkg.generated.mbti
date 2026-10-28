@@ -1,0 +1,130 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zhaojun-coding/mdf4"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn convert(Conversion, RawValue) -> Result[Value, MdfError]
+
+pub fn extract_integer(Bytes, Int32, Int32, Int32, Bool, Bool) -> Result[RawValue, MdfError]
+
+pub fn inverse_transpose(Bytes, Int32) -> Result[Bytes, MdfError]
+
+pub fn open(Bytes, limits? : Limits) -> Result[MdfFile, MdfError]
+
+pub fn resample(Series, Array[Double], Interpolation) -> Result[Series, MdfError]
+
+// Errors
+pub(all) suberror MdfError {
+  CorruptedBlock(String)
+  UnfinalizedFile
+  UnsupportedVersion(String)
+  UnsupportedFeature(String)
+  UnsupportedConversion(Int32)
+  InvalidBitField
+  InvalidFormula(String)
+  InvalidTime(String)
+  ChannelNotFound(String)
+  AmbiguousChannel(String)
+  LimitExceeded(String)
+} derive(Eq, @debug.Debug)
+pub fn MdfError::equal(Self, Self) -> Bool
+pub fn MdfError::not_equal(Self, Self) -> Bool
+pub fn MdfError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub(all) struct Channel {
+  name : String
+  unit : String
+  group : Int32
+  address : UInt64
+  kind : Int32
+  sync : Int32
+  data_type : Int32
+  byte_offset : Int32
+  bit_offset : Int32
+  bit_count : Int32
+  flags : UInt32
+  invalid_bit : Int32
+  conversion_address : UInt64
+} derive(@debug.Debug)
+pub fn Channel::to_repr(Self) -> @debug.Repr
+
+pub(all) enum Conversion {
+  Identity
+  LinearScale(Double, Double)
+  Rational(Array[Double])
+  Formula(String)
+  Interpolated(Array[Double], Array[Double])
+  Enumeration(Array[Double], Array[String], String)
+} derive(@debug.Debug)
+pub fn Conversion::to_repr(Self) -> @debug.Repr
+
+type Group
+
+pub(all) enum Interpolation {
+  Previous
+  Linear
+} derive(Eq, @debug.Debug)
+pub fn Interpolation::equal(Self, Self) -> Bool
+pub fn Interpolation::not_equal(Self, Self) -> Bool
+pub fn Interpolation::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Limits {
+  max_output : Int32
+  max_blocks : Int32
+  max_samples : Int32
+} derive(@debug.Debug)
+pub fn Limits::default() -> Self
+pub fn Limits::to_repr(Self) -> @debug.Repr
+
+pub struct MdfFile {
+  bytes : Bytes
+  version_ : String
+  start_ns_ : UInt64
+  channels_ : Array[Channel]
+  groups : Array[Group]
+  limits : Limits
+}
+pub fn MdfFile::channels(Self) -> Array[Channel]
+pub fn MdfFile::extract_channel(Self, String) -> Result[Series, MdfError]
+pub fn MdfFile::find_channel(Self, String) -> Result[Int32, MdfError]
+pub fn MdfFile::read_channel(Self, Int32) -> Result[Series, MdfError]
+pub fn MdfFile::read_raw(Self, Int32) -> Result[Array[RawValue], MdfError]
+pub fn MdfFile::start_ns(Self) -> UInt64
+pub fn MdfFile::version(Self) -> String
+
+pub(all) enum RawValue {
+  Unsigned(UInt64)
+  Signed(Int64)
+  Real(Double)
+  Octets(Bytes)
+  Text(String)
+} derive(Eq, @debug.Debug)
+pub fn RawValue::equal(Self, Self) -> Bool
+pub fn RawValue::not_equal(Self, Self) -> Bool
+pub fn RawValue::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Series {
+  name : String
+  unit : String
+  timestamps : Array[Double]
+  values : Array[Value]
+  valid : Array[Bool]
+} derive(@debug.Debug)
+pub fn Series::to_repr(Self) -> @debug.Repr
+
+pub(all) enum Value {
+  Number(Double)
+  Label(String)
+  Data(Bytes)
+} derive(Eq, @debug.Debug)
+pub fn Value::equal(Self, Self) -> Bool
+pub fn Value::not_equal(Self, Self) -> Bool
+pub fn Value::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

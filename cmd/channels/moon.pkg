@@ -1,0 +1,8 @@
+import {
+  "zhaojun-coding/mdf4" @mdf,
+  "zhaojun-coding/mdf4/analysis",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "executable")

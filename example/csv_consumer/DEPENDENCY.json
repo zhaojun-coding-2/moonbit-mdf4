@@ -1,0 +1,111 @@
+{
+  "repository": "https://github.com/moonbit-community/NyaCSV",
+  "commit": "19ab9ca861f13a0663dc6e168b764507fa0e76ba",
+  "module": "moonbit-community/NyaCSV",
+  "declared_version": "0.3.4",
+  "license": "Apache-2.0",
+  "mode": "unmodified upstream local workspace source; not a registry-release claim",
+  "source_tree_sha256": "0e4be6c255a7c8a47f4f8562368779049a76d04ed9085b11daa137e141407de6",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "8dbe4c0490f9d396af8894d9a2be6e347faf879f229d693f7064dbce5b32c6dc"
+    },
+    {
+      "path": ".github/workflows/publish.yml",
+      "sha256": "711d6a15492346ec7d878b4262d612e9363794be3806114e5b7d8a4771931496"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "d7cc70ea7c16be6238b76a052fe111c921005b9b52b0790f14694a3b55598a1f"
+    },
+    {
+      "path": "csv/comma_in_quotes.csv",
+      "sha256": "3748d0d7d865c123337ca99be99cdb23760c40ad360b2814ca10e9c64c55a492"
+    },
+    {
+      "path": "csv/empty.csv",
+      "sha256": "c9ef9588cef5c3e7045d99ebdd24726f06d080e04029078823e81cf9e77fe324"
+    },
+    {
+      "path": "csv/empty_crlf.csv",
+      "sha256": "c9ef9588cef5c3e7045d99ebdd24726f06d080e04029078823e81cf9e77fe324"
+    },
+    {
+      "path": "csv/escaped_quotes.csv",
+      "sha256": "efc80129c17f3490c6f67f46781f11884dbf0380ebb14133b20081fb742579f7"
+    },
+    {
+      "path": "csv/json.csv",
+      "sha256": "ff971a5831429e2db5aff7c15c37cb54e6bfc1c429ceb4f428489f63d0b1e606"
+    },
+    {
+      "path": "csv/location_coordinates.csv",
+      "sha256": "ebf561e6cd7358bd6c53cff82f49b76236840983e14110e09e49dbba2e8fc39f"
+    },
+    {
+      "path": "csv/newlines.csv",
+      "sha256": "20e00691b31630d2413c3972d7ca63303ee51a178675bbccac99c5359a8c03b4"
+    },
+    {
+      "path": "csv/newlines_crlf.csv",
+      "sha256": "20e00691b31630d2413c3972d7ca63303ee51a178675bbccac99c5359a8c03b4"
+    },
+    {
+      "path": "csv/quotes_and_newlines.csv",
+      "sha256": "8abc28bbcb506fd716366248ea9a0deaf6cb59fcc2999c051beb25feb8f0514e"
+    },
+    {
+      "path": "csv/simple.csv",
+      "sha256": "fe0afb18aea1a3b389fdf84827d7aa7615ad9296626fb75e83c072021a6a41a7"
+    },
+    {
+      "path": "csv/simple_crlf.csv",
+      "sha256": "fe0afb18aea1a3b389fdf84827d7aa7615ad9296626fb75e83c072021a6a41a7"
+    },
+    {
+      "path": "csv/utf8.csv",
+      "sha256": "fb2bd9deba408995d0b9c2267da163dae2be07490e7b98cd6105279e76ba12b8"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5"
+    },
+    {
+      "path": "moon.mod",
+      "sha256": "6396098d98b34fbf5541ea12893e62761532f173037e2993e377c911be9a0b2f"
+    },
+    {
+      "path": "moon.pkg",
+      "sha256": "50d00c657deabba8c45a60155b84bf1c1ef798a64a0112e8a36e06106ed1930a"
+    },
+    {
+      "path": "nyacsv.mbt",
+      "sha256": "3057ad664744477ecdb8d26cf0ae0349ed2532e2797e1620f3887020b341bf51"
+    },
+    {
+      "path": "NyaCSV.mbti",
+      "sha256": "89a0e5731dd931604e787e023c55b14bf2364b296b515758c77237c895bad437"
+    },
+    {
+      "path": "nyacsv_test.mbt",
+      "sha256": "f94400b11e5b7ecb1f95381cce2409fa30ade59bd85428964f465e365a20bb45"
+    },
+    {
+      "path": "parser.mbt",
+      "sha256": "8fd2a2dde05dad2d6f0b81f343a68d775a985182cdd80e3cc777b46a840766e6"
+    },
+    {
+      "path": "pkg.generated.mbti",
+      "sha256": "fb06d561e98c6cdab1315da3823b8356177aa6972be48b87f4f5f891728a3290"
+    },
+    {
+      "path": "reader.mbt",
+      "sha256": "9127ba76f81e01875b51e2511a886ca683d0e552e701ebc8b216fb2768650ecb"
+    },
+    {
+      "path": "README.mbt.md",
+      "sha256": "8f2b82389d5099b7e0a8b73126c165fe2cfae397343e4ca9086ecd0fd62c1e5a"
+    }
+  ]
+}

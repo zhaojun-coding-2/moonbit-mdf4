@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zhaojun-coding/mdf4/analysis/catalog_fixture"
+
+// Values
+pub fn catalog() -> Bytes
+
+pub fn unsupported() -> Bytes
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

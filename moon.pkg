@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/math",
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/string",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/encoding/utf8",
+  "gmlewis/zlib",
+  "gmlewis/io",
+}
+
+import {
+  "zhaojun-coding/mdf4/testdata" @fixture,
+} for "wbtest"

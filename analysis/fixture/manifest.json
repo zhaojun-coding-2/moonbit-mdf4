@@ -1,0 +1,20 @@
+{
+  "origin": "Own artificial core-c0/unsorted fixtures extended for table/CSV semantics; MIT; no vendor data",
+  "files": [
+    {
+      "name": "labels",
+      "sha256": "606a23bcf7416fd7204b4cc4c80ef91f71a174ebd2cb88904d4a72a48c74148d",
+      "size": 1520
+    },
+    {
+      "name": "binary",
+      "sha256": "1780febf2f441618eda543e60a87f5353f9881473e2e8a44e16211fe51a21be5",
+      "size": 1280
+    },
+    {
+      "name": "nonfinite",
+      "sha256": "27c487babf7e58d0519ddb38ff1ba54ab3213773e723865b6159d9973e00bde0",
+      "size": 3456
+    }
+  ]
+}

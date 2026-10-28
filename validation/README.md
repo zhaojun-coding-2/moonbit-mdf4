@@ -1,0 +1,122 @@
+# Independent reference reproduction
+
+Normal `moon test` needs only MoonBit and the committed fixture byte constants.
+To independently re-read those same artificial files:
+
+```powershell
+python -m venv .reference-env
+.\.reference-env\Scripts\python -m pip install -r validation/requirements.txt
+.\.reference-env\Scripts\python validation/check_reference.py
+```
+
+The script validates `INPUTS.json` hashes before comparing external outputs to stored golden JSON. Fixture construction used self-specified raw samples and `asammdf 8.8.28 MDF.append/Signal/MDF.save` for three storage modes. The bit/unsorted files were written by a small layout writer from the MIT reference field definitions, then read by asammdf; no product parser was used to produce golden outputs. Generation scripts and first failing oracle attempts are retained in the execution receipt.
+
+`bit-boundaries-golden.json` lists 200 scalar cases actually checked by asammdf and 56 cases where its API returned arrays, overflowed, or rounded large signed raw values through floating point. Those 56 use Python arbitrary-precision byte-integer arithmetic, an independent algorithm from the product's bit loop. These are separate claims. A library returning a rounded scalar is not accepted as the truth for exact 64-bit bits.
+
+All files here and in `testdata/` are artificial and covered by the project MIT license. The actual CSS recording was checked only in the local execution directory, with an independently finalized copy and separate provenance. It is not part of this redistributable suite.
+
+
+## Analysis-table acceptance
+
+The new `analysis/fixture/` files are self-created derivatives of the existing artificial fixtures: Unicode/empty enum labels with UInt64 maximum origin, fixed byte fields, and valid non-finite IEEE values. Regenerate files, embedded MoonBit bytes and their manifest with `python validation/generate_analysis_fixtures.py` (standard Python only). It does not touch historical testdata files.
+
+Build `moon build cmd/export --target js`, then run `python validation/check_analysis.py PATH_TO_COMPILED_EXPORT_JS`. The script uses Node for the actual file consumer and Python's independent standard csv parser. It checks all five fixture/raster/selection scenarios (18 data rows), literal expected values/masks/headers, Unicode quotes/newlines, byte hex, exact origin, valid empty strings, and ten error paths with nonzero exit/no stdout. Normal MoonBit tests use committed embedded bytes and do not call Python or download an oracle.
+
+
+## Gap and finite-number CSV acceptance
+
+`python validation/generate_gap_fixtures.py` builds additional MIT derivatives from the pinned self-created nonfinite fixture: binary64 roundtrip values/times, extreme finite clocks, and zero/single-record inputs. It writes only the additional files/embedded `gaps.mbt` and `gap-manifest.json`; historical fixtures stay unchanged.
+
+After building cmd/export, `python validation/check_gaps.py PATH_TO_COMPILED_EXPORT_JS` independently checks 11 file/selection/raster scenarios (52 rows), six new error cases, and 11 finite value/time bit patterns. It covers held age vs full linear span, inclusive limits, exact observations, original invalid bits, zero caps, enums/empty labels, empty/single records, extreme clocks, and a literal --max-gap column alias. Run the existing check_analysis.py as well when changing CLI/CSV paths; together these covered 16 scenarios/70 data rows/16 error paths in the round-09 acceptance. The normal MoonBit tests remain offline and require no Python.
+
+
+## Exact gap boundaries (round 10)
+
+`python validation/generate_gap_precision.py` creates a separate precision_fixture package from the own roundtrip fixture. It retains both original counterexample files and adds unit/tiny-span files; no historical fixture/generator is overwritten. `python validation/check_gap_precision.py COMPILED_EXPORT_JS [CAPTURE_DIRECTORY]` checks 16 complete CSV scenarios/17 data rows with exact Fraction endpoint/query/cap comparisons, including the original Previous/Linear over-limit cases, true equality, neighboring caps, observations and tiny intervals. The optional directory records actual CSV bytes.
+
+The new numerical matrix uses 149 fixed boundary tuples and constructs inputs from their UInt64 bits. This avoids an observed one-ULP decimal-literal conversion in the installed compiler; no case is removed or expected bit pattern changed. Tests use an independent exact rational reference. The existing check_gaps.py remains the related full export regression; unrelated unchanged reference collections are not repeated for this correction.
+
+## Export review receipts (round 11)
+
+`python validation/generate_review_fixture.py` creates the separate `analysis/review_fixture/` mixed file, embedded bytes and manifest using standard Python. It derives only from the project's own `precision_fixture/unit_span.mf4`, retaining two observations and adding text-enum and fixed-byte channels. Independent asammdf 8.8.28 readback of all three channels is recorded in the round-11 receipt; the generator itself requires no external package and leaves historical fixtures unchanged.
+
+```powershell
+moon test analysis/schema_wbtest.mbt --target js
+moon test analysis/schema_wbtest.mbt --target wasm-gc
+moon run example/receipt --target wasm-gc
+moon build cmd/export --target js
+python validation/check_receipts.py PATH_TO_COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+The capture directory must not already exist. The standard-Python harness runs the actual Node exporter and independently checks eight receipt exports/17 rows: numeric-versus-enum ambiguity, a mixed Number/Label/Data table, both trailing option orders, empty/all-invalid grids, Unicode/quotes/newlines/signed zero, and valid non-finite values. It checks literal complete-row expectations, source/CSV hashes, schema settings/counts/kinds, four controlled content/metadata mutations, five failure cases, and flag-like old column aliases. Existing receipt bytes must remain unchanged on refusal. Normal MoonBit tests use committed byte constants and require no Python, external oracle or downloads.
+
+Verify a user's saved source/CSV/receipt separately:
+
+```powershell
+python validation/verify_export.py SOURCE_MF4 EXPORTED_CSV RECEIPT_JSON
+```
+
+This verifies SHA-256 and byte counts, UTF-8/CRLF representation, headers, complete rows, exact origin, ordered finite times, bounds, validity counts and observed-kind consistency. It does not reparse MDF or authenticate a signer. A changed receipt and changed payload can be made mutually consistent; the receipt is for content review, without a trust/signature protocol. The exporter exclusively creates only the JSON path; shell redirection controls the CSV path and encoding. Run the verifier against the bytes actually saved, because writing the receipt precedes stdout completion.
+
+Round 11 also ran `check_gap_precision.py` against the changed exporter (16 scenarios/17 rows). The unchanged round-10 exact comparison code and 149 fixed vectors were preserved byte-for-byte; their successful numerical suite was not rerun.
+
+## Catalogue-to-export selection (round 14)
+
+`python validation/generate_catalog_fixture.py` regenerates the separate owned `analysis/catalog_fixture/` files from the existing unsorted MIT fixture. It changes channel names/units and origin while retaining records: two `速度🚲` signals occupy groups 0/1 with km/h and m/s units. A derivative changes only the first signal's conversion to unsupported CC99, demonstrating that inventory does not execute physical conversions. Historical fixture files stay unchanged; no vendor data or external dependency is used by the generator.
+
+```powershell
+moon test analysis/catalog_test.mbt --target js
+moon test analysis/catalog_test.mbt --target wasm-gc
+moon run example/catalog --target wasm-gc
+moon build cmd/channels cmd/export --target js
+python validation/check_catalog.py COMPILED_CHANNELS_JS COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+The capture directory must not exist. Standard Python invokes the actual Node commands, checks every ordered catalogue field against literal expectations, selects indices by duplicate name plus group/unit, and checks full CSV records. Four catalogue cases cover normal/unsupported-conversion/empty inventory and a Unicode filename with spaces. Five catalogue error paths emit stderr/nonzero and no JSON. Two selected exports/eight rows retain masks, units, order and exact origin; the script invokes `verify_export.py` on each saved CSV/receipt/source, checking actual hashes and schema. Normal MoonBit use/tests remain offline with committed bytes and do not require Python or asammdf.
+
+The round-14 receipt separately records asammdf 8.8.28 metadata/group-aware lookup for both files, identical JS/Wasm-GC example data, and byte-for-byte CSV/receipt comparison with the pre-change compiled exporter. Its rebuilt binary identity changed after the additive analysis API; unchanged output is demonstrated by comparison, not inferred from its hash. No old gap/numerical/storage suite is rerun for this metadata-only addition.
+
+## Selected source -> explicit endpoint grid (round 15)
+
+`python validation/generate_summary_fixture.py` regenerates only the new owned `analysis/summary_fixture/` derivatives. They retain catalogue identities but add a physical CC7 enum and a CC1 master clock, plus ALL_INVALID and reversed-clock variants. Their emitted files match the pre-implementation operation-gap candidates byte-for-byte. Historical fixtures stay unchanged.
+
+```powershell
+moon test analysis/summary_test.mbt --target js
+moon test analysis/summary_test.mbt --target wasm-gc
+moon run example/summary --target wasm-gc
+moon build cmd/summary cmd/channels cmd/export --target js
+python validation/check_summary.py SUMMARY_JS CHANNELS_JS EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+Standard Python invokes the actual commands, uses catalogue group/unit to choose index 3, and checks six complete summary objects: calibrated enum, masked numeric, all-invalid, reversed, empty and signed zero. Eight error cases cover arguments, index parsing/range, unsupported physical conversion and missing/malformed files. The consumer explicitly chooses endpoint grids and Previous; two exports/three complete rows and both saved receipts pass the standalone byte verifier. Reversed order is reported, not sorted; empty endpoints remain null, and `-0` survives summary-to-export. The capture directory must not exist. Normal library/tests need no Python or external oracle.
+
+The report's independent asammdf 8.8.28 readback agrees on physical values/clocks and the other masks. With CN flags 3, however, it returned false invalidation bits despite ALL_INVALID=1. That observed discrepancy and initial failure are retained; this one mask uses literal `[false,false]` validity from the explicit flag/project contract. No sample/vector was changed or omitted and no global oracle/SDK was patched. Five public tests per backend and actual summary output confirm the expected project behavior. This is not claimed as complete external-oracle agreement.
+
+Actual old/new catalogue output and old/new selected CSV/receipt bytes were compared on the new calibrated source; their compiled identities are pinned separately. Unchanged earlier numerical/gap/storage/catalogue suites were not rerun.
+
+## Explicit raster-file transport (round 16)
+
+`example/raster/grid.json` is a shipped explicit irregular grid; `parse_raster_json` is pure on both targets. The new CLI form is `export FILE "@GRID.json" LABEL INDEX POLICY ...`, with UTF-8/optional BOM and an array of decimal clock strings. Original inline input remains available.
+
+```powershell
+moon test analysis/raster_test.mbt --target js
+moon test analysis/raster_test.mbt --target wasm-gc
+moon run example/raster --target wasm-gc
+moon build cmd/export --target js
+python validation/check_raster.py COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+The capture directory must not exist. Standard Python generates an explicit finite nonuniform 4096-point grid, checks every complete CSV row and every clock's binary64 bits, and invokes the saved-byte verifier on four outputs (4101 data rows): large grid, shipped four-point grid, UTF-8 BOM/Unicode-path -0 request, and empty grid. Seven invalid file/decode/shape/time inputs and a 4096-point/500-column CellLimit case must emit no CSV or receipt. No old numerical/source-summary suite or external oracle is needed.
+
+The four parser tests per backend separately pin independent Python bits for -0, minimum subnormal, 0.29 and maximum finite, plus empty/BOM, shape and lexical/finite/order errors. The report retains the actual pre-change 77,212-UTF-16-unit Windows command failure (WinError 206 before Node starts). Both examples and a fresh old/new inline versus file-mode comparison agree byte-for-byte on CSV and receipt; the frozen-15 export cases are not rerun. The initial StringView path-ownership deprecation diagnostic is retained, resolved with the SDK-prescribed to_owned without changing inputs/expectations.
+
+
+## Long legal CSV fields in saved-byte verification
+
+The verifier uses the actual fingerprint-checked CSV byte length as a temporary parser field ceiling when Python's current limit is smaller, then restores the caller's setting in `finally`. This accepts long legal labels while retaining strict CSV parsing, schema checks, hashes, text/validity semantics and the existing MDF/alignment budgets. It does not use a global unbounded limit or introduce a new file format.
+
+```powershell
+python validation/check_long_fields.py COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+This standard-library regression invokes the actual exporter on three self-created TX/CC7 derivatives: ASCII labels at 131072 and 131073 characters, and a 131073-character Unicode label containing comma, quotes and newlines. Each has a long valid label plus a valid empty label (six complete rows in total). Complete CSV bytes must equal independently constructed csv.writer/literal expectations, and all three imported verifier calls must pass and restore the caller's limit, including a nondefault setting. One saved over-boundary case also passes the actual verifier CLI. An unterminated long quoted field with a matching test fingerprint still fails strict parsing through both import and CLI; the limit is restored and the CLI fails cleanly. The capture directory must not exist. The three source files/CSV/receipts and all actual command outputs are retained there; no historical fixture or dependency is modified.

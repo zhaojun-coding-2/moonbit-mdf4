@@ -1,0 +1,35 @@
+{
+  "origin": "Own MIT unsorted fixture; same records, Unicode duplicate names and distinct units; unsupported CC99 derivative",
+  "base_sha256": "6349e3773fd46e58b94bfe54b555dd2286eec01097040cc74ba955e5ce1a2da1",
+  "start_ns": "18446744073709551615",
+  "names": [
+    "time",
+    "速度🚲",
+    "time",
+    "速度🚲"
+  ],
+  "selection": [
+    {
+      "index": 1,
+      "group": 0,
+      "unit": "km/h"
+    },
+    {
+      "index": 3,
+      "group": 1,
+      "unit": "m/s"
+    }
+  ],
+  "files": [
+    {
+      "name": "catalog",
+      "sha256": "2ce2e2a4492429d8ddc77947a72733102c2469dd4293a28fabd885c541605e0d",
+      "bytes": 1384
+    },
+    {
+      "name": "unsupported",
+      "sha256": "dd0027b198095ab2ebb353f233b6a3d5c6126a0e9c87d59bf809f4026160cf8d",
+      "bytes": 1464
+    }
+  ]
+}

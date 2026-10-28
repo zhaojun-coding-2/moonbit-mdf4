@@ -1,0 +1,6 @@
+import {
+  "zhaojun-coding/mdf4" @mdf,
+  "zhaojun-coding/mdf4/testdata" @fixture,
+}
+
+pkgtype(kind: "executable")

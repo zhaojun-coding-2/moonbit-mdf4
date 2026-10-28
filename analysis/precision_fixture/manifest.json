@@ -1,0 +1,25 @@
+{
+  "source": "self-created roundtrip fixture, MIT; first two valid records retained",
+  "files": [
+    {
+      "name": "age_boundary",
+      "sha256": "b7fa92d794c02cbd61bf3970b2c3c0634aca4794f72ecc17256e7f984b09c729",
+      "size": 3542
+    },
+    {
+      "name": "span_boundary",
+      "sha256": "a51417bbf6412ea02e3580c7f13575ad236fe0ee49476bb55388d4d997952e89",
+      "size": 3542
+    },
+    {
+      "name": "unit_span",
+      "sha256": "5b5e6f36391005a203b0e89f55bc726398fda122ed165f6be266ef94eeab1064",
+      "size": 3542
+    },
+    {
+      "name": "tiny_span",
+      "sha256": "03b2a6439cf95598a51da22ed8abbd9586bb4cab145dd1c02cae22ca3947766d",
+      "size": 3542
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "file": "testdata/bit-boundaries.mf4",
+    "sha256": "b6c840e1355c43bbae670a3504308c98bb25c91377f241ecce60edefa43e2af8",
+    "origin": "self-created artificial input; MIT"
+  },
+  {
+    "file": "testdata/core-c0.mf4",
+    "sha256": "33821845b3577b23c709643dcd6fca0f27caa835c29cac44dad78b582aa8539c",
+    "origin": "self-created artificial input; MIT"
+  },
+  {
+    "file": "testdata/core-c1.mf4",
+    "sha256": "5e45cfff52566129dba8023b7f7f6165c75353656fe2a3dfaaaa865e40fe5e57",
+    "origin": "self-created artificial input; MIT"
+  },
+  {
+    "file": "testdata/core-c2.mf4",
+    "sha256": "07cfbc6ebbb0feeae293a5c903cc9bc90b185180b8db622d563807bd434ba9c9",
+    "origin": "self-created artificial input; MIT"
+  },
+  {
+    "file": "testdata/unsorted.mf4",
+    "sha256": "6349e3773fd46e58b94bfe54b555dd2286eec01097040cc74ba955e5ce1a2da1",
+    "origin": "self-created artificial input; MIT"
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "origin": "Own MIT analysis/nonfinite fixture; no vendor data",
+  "files": [
+    {
+      "name": "roundtrip",
+      "sha256": "1950955e0f49d5dc093c2bea9769ef6b13e623f33adb6c932dc4165bc0b09676",
+      "size": 3456
+    },
+    {
+      "name": "wide_clock",
+      "sha256": "32301a32439232a1dd3b61889635c1f90988453f60c49ca185ea0fa97a7564bf",
+      "size": 3456
+    },
+    {
+      "name": "empty",
+      "sha256": "e229e728da861ae14fe3e8228f710df4021ac15275d1d85ff43022aa94458e1f",
+      "size": 3480
+    },
+    {
+      "name": "single",
+      "sha256": "9d448a1bb77b7804ffc4b9e5f3c74f2451cfb508b69adc6da8cba0dec154b111",
+      "size": 3511
+    }
+  ]
+}

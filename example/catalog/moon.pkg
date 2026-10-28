@@ -1,0 +1,7 @@
+import {
+  "zhaojun-coding/mdf4" @mdf,
+  "zhaojun-coding/mdf4/analysis",
+  "zhaojun-coding/mdf4/analysis/catalog_fixture" @fixture,
+}
+
+pkgtype(kind: "executable")
