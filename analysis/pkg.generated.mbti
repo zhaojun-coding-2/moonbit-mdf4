@@ -9,6 +9,8 @@ import {
 // Values
 pub fn align(@mdf4.MdfFile, Array[ChannelRequest], Array[Double], max_cells? : Int32) -> Result[AlignedTable, AnalysisError]
 
+pub fn align_query(@mdf4.MdfFile, String, max_cells? : Int32) -> Result[AlignedTable, AnalysisError]
+
 pub fn align_with_gap(@mdf4.MdfFile, Array[ChannelRequest], Array[Double], max_gap~ : Double, max_cells? : Int32) -> Result[AlignedTable, AnalysisError]
 
 pub fn channel_catalog_json(@mdf4.MdfFile) -> String

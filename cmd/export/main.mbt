@@ -13,6 +13,11 @@ extern "js" fn reject(message : String) -> Unit = "(s) => { process.stderr.write
 ///|
 fn main {
   let args = arguments()
+  // RASTER position only: an old column label named --query stays a label.
+  if args.length() >= 2 && args[1] == "--query" {
+    export_query(args)
+    return
+  }
   let mut end = args.length()
   let mut max_gap : Double? = None
   let mut receipt_path : String? = None
@@ -115,19 +120,70 @@ fn main {
     None => @analysis.align(file, requests, raster)
   }
   match result {
-    Ok(table) => {
-      let csv = table.to_csv()
-      if receipt_path is Some(path) {
-        if !store_receipt(path, table.schema_json(), source, csv) {
-          reject("Could not create receipt; use a new writable path")
-          return
-        }
-      }
-      emit(csv)
-    }
+    Ok(table) => output_table(table, source, receipt_path)
     Err(error) =>
       reject("Cannot align channels: \{@debug.Repr(error).to_string()}")
   }
+}
+
+///|
+// The outer array distinguishes a readable empty file from an I/O error.
+extern "js" fn load_query(path : String) -> FixedArray[Bytes] = "(p) => { try { return [new Uint8Array(require('node:fs').readFileSync(p))]; } catch (_) { return []; } }"
+
+///|
+fn export_query(args : FixedArray[String]) -> Unit {
+  if args.length() != 3 && !(args.length() == 5 && args[3] == "--receipt") {
+    reject("Usage: export FILE --query UTF8_JSON_FILE [--receipt NEW_PATH]")
+    return
+  }
+  let loaded = load_query(args[2])
+  if loaded.length() != 1 {
+    reject("Cannot read query file")
+    return
+  }
+  let query = @utf8.decode(loaded[0][:]) catch {
+    _ => {
+      reject("Query file must be UTF-8")
+      return
+    }
+  }
+  let source = load(args[0])
+  let file = match @mdf.open(source) {
+    Ok(file) => file
+    Err(error) => {
+      reject("Cannot open MDF input: \{error.to_repr()}")
+      return
+    }
+  }
+  match @analysis.align_query(file, query) {
+    Ok(table) =>
+      output_table(
+        table,
+        source,
+        if args.length() == 5 {
+          Some(args[4])
+        } else {
+          None
+        },
+      )
+    Err(error) => reject("Cannot execute query: \{error.to_repr()}")
+  }
+}
+
+///|
+fn output_table(
+  table : @analysis.AlignedTable,
+  source : Bytes,
+  receipt_path : String?,
+) -> Unit {
+  let csv = table.to_csv()
+  if receipt_path is Some(path) {
+    if !store_receipt(path, table.schema_json(), source, csv) {
+      reject("Could not create receipt; use a new writable path")
+      return
+    }
+  }
+  emit(csv)
 }
 
 ///|

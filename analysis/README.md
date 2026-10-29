@@ -34,6 +34,14 @@ An opaque table supplies `start_ns()`, `row_count()`, `column_count()`, `timesta
 
 The raster is copied, finite and strictly increasing. At least one column is required. Empty grids are accepted and retain schema. Max cells is checked as rows <= budget/columns, before reading/converting channels, avoiding multiplication overflow; it bounds logical value cells rather than bytes. Output remains an in-memory table/string.
 
+## Saved analysis query input
+
+`align_query(file, query_json, max_cells=1000000) -> Result[AlignedTable, AnalysisError]` executes the complete input form shown in `example/query/request.json`: exactly `query_version` (`mdf4.analysis.query/1`), `raster`, `columns` and `max_gap_seconds`. The document is JSON text with one optional leading BOM. Each ordered column has exactly `channel`, `label`, `policy`: channel is a nonempty ASCII decimal string in nonnegative Int32 range, including leading zeros; label is a string; policy is `previous`/`linear`. Raster parsing delegates to `parse_raster_json`. Gap is explicit null or a decimal string using the existing finite nonnegative cap rules. Core JSON duplicate-key behavior is retained; duplicate detection is not advertised.
+
+The operation only orchestrates existing alignment. Missing/unknown fields, wrong types and lexical errors return `InvalidRequest`; old label/header/channel/clock/interpolation errors and `CellLimit` propagate in the existing variants. Query syntax/root/fields/version precede raster parsing, ordered column parsing, gap parsing and then original alignment checks. It preserves fresh table snapshots, exact origin, source indices/order/units, invalid values and every requested row. It adds no paths/includes, batch mode, automatic channel matching, generated grid or output schema; `max_cells` stays a separate caller resource policy.
+
+The exact file adapter is `export FILE --query QUERY_FILE [--receipt NEW_PATH]`; the old RASTER forms and column labels named `--query` remain available. Query I/O/UTF-8 precedes normal source open, which precedes semantic query errors; old exclusive receipt creation precedes CSV emission. Existing full-file open/physical-read costs and budgets stay in place. The receipt still fingerprints source and interpreted CSV rather than raw query bytes. `example/query` is a separately compiled public receiver on both targets; `validation/check_query.py` checks the complete public/file artifacts against original bytes and hand-written cells.
+
 CSV schema:
 
 | Field | Representation |

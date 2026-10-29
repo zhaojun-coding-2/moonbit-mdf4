@@ -1,0 +1,8 @@
+{
+  "query_version": "mdf4.analysis.query/1",
+  "raster": ["10.5", "10.75", "11.25", "11.5"],
+  "columns": [
+    { "channel": "3", "label": "state 🚦", "policy": "previous" }
+  ],
+  "max_gap_seconds": "0.25"
+}

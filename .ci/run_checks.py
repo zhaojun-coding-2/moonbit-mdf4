@@ -64,6 +64,8 @@ def main():
     run("independent-examples", [sys.executable, ROOT/".ci/verify_examples.py", out])
     run("window-example", ["moon", "run", "example/window", "--target", args.target], output="window.json")
     run("independent-window-example", [sys.executable, ROOT/"validation/check_window.py", "example", out/"window.json"])
+    run("query-example", ["moon", "run", "example/query", "--target", args.target], output="query.json")
+    run("independent-query-example", [sys.executable, ROOT/"validation/check_query.py", "example", out/"query.json"])
 
     if args.target == "js":
         def artifact(name):
@@ -89,6 +91,7 @@ def main():
             ("long-fields", "check_long_fields.py", [export, out/"long-fields"]),
             ("inspect", "check_inspect.py", [catalogue, inspector, out/"inspect"]),
             ("window", "check_window.py", ["files", window_receiver, out/"window-files"]),
+            ("query", "check_query.py", ["files", export, out/"query-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -111,10 +114,19 @@ def main():
     (out/"source-and-verification.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status": "pass", "target": args.target, "commandCount": len(commands), "commit": manifest["commit"], "sourceTreeSha256": manifest["treeSha256"]}))
     print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
+    query_suffix = ".js" if args.target == "js" else ".wasm"
+    query_binaries = [p for p in (ROOT/("_build/"+args.target+"/debug/build")).rglob("query"+query_suffix)
+                      if p.parent.name == "query" and p.parent.parent.name == "example"]
+    if len(query_binaries) != 1:
+        raise RuntimeError("Expected exactly one compiled public query example")
+    print("::notice title=MDF4 verified query example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(query_binaries[0].read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"query.json").read_bytes()).hexdigest())
     if args.target == "js":
         print("::notice title=MDF4 verified exporter::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(export.read_bytes()).hexdigest())
         print("::notice title=MDF4 verified inspector::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(inspector.read_bytes()).hexdigest())
         print("::notice title=MDF4 verified window receiver::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(window_receiver.read_bytes()).hexdigest())
+        query_files = out/"query-files/manifest.json"
+        query_receipt = json.loads(query_files.read_text(encoding="utf-8"))
+        print("::notice title=MDF4 verified query files::commit="+str(manifest["commit"])+" exporter="+hashlib.sha256(export.read_bytes()).hexdigest()+" manifest="+hashlib.sha256(query_files.read_bytes()).hexdigest()+" cases="+str(query_receipt["case_count"]))
 
 
 if __name__ == "__main__":

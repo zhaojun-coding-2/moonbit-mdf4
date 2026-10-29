@@ -1,5 +1,18 @@
 # Independent reference reproduction
 
+## Saved query public and file receivers
+
+`validation/check_query.py` uses only Python standard library, original owned input bytes, `struct`, literal metadata/cells and CSV/hash readback. It is not a decoder dependency or a producer-derived oracle. The shipped calibrated query's complete four rows include exact UInt64 origin, Unicode labels, an inclusive gap endpoint and a retained invalid row; mixed ordered columns add Data, numeric Linear, numeric-looking Label, negative-zero time and quote/comma/newline headers. Full schema and existing receipt source/CSV byte lengths and SHA-256 must agree. Old inline/`@RASTER` commands are separate compatibility controls, including labels literally named `--query`.
+
+```powershell
+moon run example/query --target js > query-example.json
+python validation/check_query.py example query-example.json
+moon build cmd/export --target js
+python validation/check_query.py files _build/js/debug/build/zhaojun-coding/mdf4/cmd/export/export.js NEW_QUERY_CAPTURE_DIRECTORY
+```
+
+Use a new capture directory; it retains every command, stdout/stderr, query, receipt and final manifest. Query syntax/field/index/policy errors, old alignment errors, query I/O/UTF-8, source-open precedence, new-form errors and existing-receipt protection must not yield successful partial artifacts. Source/query files are read back unchanged. The independent public example checks also run on Wasm-GC; its small public `max_cells` call must return the old `CellLimit`. No reference generator is needed or run by these receivers.
+
 Normal `moon test` needs only MoonBit and the committed fixture byte constants.
 To independently re-read those same artificial files:
 

@@ -143,6 +143,32 @@ match @analysis.align(file, [
 }
 ```
 
+### Replay a saved analysis query
+
+Save the complete input query when the raster, ordered channel selections, aliases, interpolation and gap policy must travel together. `@analysis.align_query(file, query_json, max_cells=1000000)` returns the existing `AlignedTable` with the existing `AnalysisError`; it executes the same alignment operations. The versioned document has exactly four fields:
+
+```json
+{
+  "query_version": "mdf4.analysis.query/1",
+  "raster": ["10.5", "10.75", "11.25", "11.5"],
+  "columns": [{ "channel": "3", "label": "state 🚦", "policy": "previous" }],
+  "max_gap_seconds": "0.25"
+}
+```
+
+```powershell
+moon run example/query --target js
+moon run example/query --target wasm-gc
+moon run cmd/export --target js -- analysis/summary_fixture/calibrated.mf4 --query example/query/request.json --receipt query-receipt.json > query.csv
+python validation/verify_export.py analysis/summary_fixture/calibrated.mf4 query.csv query-receipt.json
+```
+
+The supplied query emits four rows, retaining origin `18446744073709551615`, source name `速度🚲` and m/s. At 10.5/10.75 it emits 前进/true; 11.25 is blank/false because held age 0.75 exceeds 0.25; 11.5 is 倒车/true. An explicit null gap uses unrestricted alignment. The public example returns full CSV/schema and demonstrates a small caller-supplied cell budget; the Node file receiver verifies the complete saved CSV and existing receipt independently.
+
+The file form is exactly `export FILE --query QUERY_FILE [--receipt NEW_PATH]`. Only the RASTER position selects it, so old inline/`@RASTER` forms and a column label literally named `--query` retain their behavior. Query files are UTF-8 with an optional single BOM. Raster points remain decimal strings with existing finite/order/negative-zero/empty rules. Ordered columns have exactly `channel`, `label`, `policy`; channel is an ASCII decimal digit string in nonnegative Int32 range (leading zeros allowed), labels follow old uniqueness rules, and policies are `previous`/`linear`. `max_gap_seconds` must be null or a finite nonnegative decimal string. Missing/unknown fields and wrong types are errors. Duplicate-key handling follows the pinned core JSON parser; duplicate detection is not promised.
+
+Query file I/O/UTF-8 precedes normal MDF open; after readable query text, source-open errors precede query semantic errors. The query adds no source/output paths, includes, nested raster files, batch processing, automatic channel matching or CLI gap override. Indices belong to the chosen file's catalogue. The logical-cell budget stays separate and the file mode uses the same default. Open, physical reads, memory limits, numerical semantics and CSV/schema/receipt bytes are unchanged. Receipts bind source and interpreted CSV, not raw query spelling, and retain exclusive creation before CSV emission. This is a complete saved input workflow, with no third-party adoption claim.
+
 CSV columns are `start_ns,time_s`, then each `label [unit]` value and its `__valid` companion; brackets are omitted for empty units. Invalid/outside-domain cells are blank/false, while valid empty labels are blank/true. Exact origin integers are decimal text; numeric NaN/Infinity remain textual when their record validity is true. Byte values use lowercase `0x` hex. Fields are quoted, embedded quotes doubled, and records use CRLF. This is data interchange: spreadsheet formula neutralization and an MDF round-trip encoding are outside this export contract.
 
 Labels and generated headers must be unique, Linear requires numeric samples, and grid times must be finite/strictly increasing. Empty grids produce a header-only CSV. The default 1,000,000-cell limit bounds rows times selected columns before extraction; it does not bound total bytes or serialized text. The reader, aligned arrays and CSV string are held in memory. The separate AnalysisError leaves existing MdfError matches compatible. See [analysis/README.md](analysis/README.md) for the exact new API and schema.
