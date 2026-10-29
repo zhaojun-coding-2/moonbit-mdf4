@@ -1,4 +1,4 @@
-name = "zhaojun-coding/mdf4"
+name = "zhaojun-coding-2/mdf4"
 
 version = "0.1.0"
 

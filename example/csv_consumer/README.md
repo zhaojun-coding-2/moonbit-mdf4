@@ -18,7 +18,7 @@ moon run . --target wasm-gc
 
 Create the checkout/workspace once; subsequent runs start at `moon run`. `DEPENDENCY.json` records the exact upstream sources used. The workspace template resolves MDF4 to `../..` and NyaCSV to the local pinned checkout. Dependency caches, `.deps/`, `moon.work` and build products are excluded from source delivery. No SDK binary or standard-library modification is needed.
 
-If the root checkout already uses a `moon.work` with local dependency overrides, add those same dependency directories to this example's workspace with `moon work use PATH` before `moon update`. The recorded validation used the root's existing gmlewis workspace members; this round does not revalidate a fresh registry-only installation of those historical dependency versions.
+If the root checkout already uses a `moon.work` with local dependency overrides, add those same dependency directories to this example's workspace with `moon work use PATH` before `moon update`. Use the checksum-pinned gmlewis workspace members from the root setup for reproducible dependency resolution.
 
 The pin declares upstream version **0.3.4**. This does not claim a Mooncakes 0.3.4 release. The registry's 0.3.3 artifact failed with the validation SDK (compiler 0.10.17): it has an obsolete `moon.mod.json` and obsolete Buffer calls. The pinned upstream commit already contains the corresponding compatibility changes; this example does not patch the dependency. Retain upstream Apache-2.0 notices when distributing a build that includes it.
 
@@ -31,3 +31,5 @@ The pin declares upstream version **0.3.4**. This does not claim a Mooncakes 0.3
 - Five damaged/unsupported views are rejected: wrong schema version, wrong header, omitted rows, invalid validity text and an ambiguous column-kind union.
 
 `consume` is a small recipe for this producer's homogeneous-kind columns, not a new public MDF API. A column-wide union cannot recover each field's original kind, so the example rejects it. The parsed header/rows are included to make the external-parser boundary inspectable. The example keeps string values; converting them to numeric arrays or a DataFrame needs the application's own policy. It neither authenticates the CSV/schema pair nor reconstructs MDF. For saved-file fingerprints and receipt checking use the root `validation/verify_export.py`; this recipe does not replace that verifier or validate arbitrary untrusted CSV.
+
+Module: `zhaojun-coding-2/mdf4-csv-consumer-example`. This owned example imports `zhaojun-coding-2/mdf4` and `zhaojun-coding-2/mdf4/analysis`; NyaCSV retains its original upstream namespace and license.

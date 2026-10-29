@@ -6,7 +6,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "moon check $target failed" }
         & moon build --target $target
         if ($LASTEXITCODE -ne 0) { throw "moon build $target failed" }
-        & moon test -p zhaojun-coding/mdf4 --target $target
+        & moon test -p zhaojun-coding-2/mdf4 --target $target
         if ($LASTEXITCODE -ne 0) { throw "moon test $target failed" }
     }
     & moon run example --target wasm-gc

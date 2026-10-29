@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "zhaojun-coding/mdf4/analysis/precision_fixture"
+package "zhaojun-coding-2/mdf4/analysis/precision_fixture"
 
 // Values
 pub fn age_boundary() -> Bytes

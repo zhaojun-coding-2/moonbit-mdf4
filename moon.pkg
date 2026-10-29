@@ -10,5 +10,5 @@ import {
 }
 
 import {
-  "zhaojun-coding/mdf4/testdata" @fixture,
+  "zhaojun-coding-2/mdf4/testdata" @fixture,
 } for "wbtest"

@@ -1,6 +1,6 @@
 import {
-  "zhaojun-coding/mdf4" @mdf,
-  "zhaojun-coding/mdf4/analysis",
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis",
   "moonbitlang/core/string",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",

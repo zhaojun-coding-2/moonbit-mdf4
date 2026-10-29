@@ -1,8 +1,8 @@
 import {
-  "zhaojun-coding/mdf4" @mdf,
-  "zhaojun-coding/mdf4/analysis",
-  "zhaojun-coding/mdf4/analysis/fixture" @special,
-  "zhaojun-coding/mdf4/analysis/review_fixture" @fixture,
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis",
+  "zhaojun-coding-2/mdf4/analysis/fixture" @special,
+  "zhaojun-coding-2/mdf4/analysis/review_fixture" @fixture,
   "moonbit-community/NyaCSV" @csv,
   "moonbitlang/core/json",
 }

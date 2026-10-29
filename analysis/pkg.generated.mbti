@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "zhaojun-coding/mdf4/analysis"
+package "zhaojun-coding-2/mdf4/analysis"
 
 import {
   "moonbitlang/core/debug",
-  "zhaojun-coding/mdf4",
+  "zhaojun-coding-2/mdf4",
 }
 
 // Values

@@ -1,6 +1,6 @@
 # MDF analysis table
 
-Import `zhaojun-coding/mdf4/analysis` and the root package. The library and `example/table` run on JS/Wasm-GC; `cmd/export` adapts Node file I/O.
+Import `zhaojun-coding-2/mdf4/analysis` and the root package. The library and `example/table` run on JS/Wasm-GC; `cmd/export` adapts Node file I/O.
 
 ## Channel discovery
 

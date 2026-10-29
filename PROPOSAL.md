@@ -27,4 +27,4 @@ JS/Wasm-GC 的真实 CI 编译、测试、公开例程和独立消费者由 [CI-
 
 根 LICENSE 为 MIT，自制样本随附；gmlewis/NyaCSV 依赖为 Apache-2.0，mdflib 的 MIT 参考声明已保留。asammdf（LGPLv3+）仅外部核验；不分发 ASAM 规范或无已确认再分发权的 CSS 数据，来源见 THIRD_PARTY.md。
 
-源码原作者：zhaojun-coding；仓库：[zhaojun-coding-2/moonbit-mdf4](https://github.com/zhaojun-coding-2/moonbit-mdf4)。模块名与 MIT 原作者署名保持，未提交赛事。
+当前模块：`zhaojun-coding-2/mdf4`；当前维护、仓库与项目申报归属：[zhaojun-coding-2/moonbit-mdf4](https://github.com/zhaojun-coding-2/moonbit-mdf4)。原始实现与 MIT 版权署名为 `zhaojun-coding`，原 Git 作者历史及上游来源如实保留；仓库账号调整不改变原创及版权历史。

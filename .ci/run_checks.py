@@ -4,11 +4,43 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def module_name(folder):
+    text = (folder/"moon.mod").read_text(encoding="utf-8")
+    match = re.search(r'^name\s*=\s*"([^"]+)"\s*$', text, re.MULTILINE)
+    if not match:
+        raise RuntimeError("Module identity missing: "+str(folder))
+    return match.group(1)
+
+
+def package_binary(root, target, package):
+    suffix = ".js" if target == "js" else ".wasm"
+    binary = root/"_build"/target/"debug/build"/module_name(root)/package/(Path(package).name+suffix)
+    if not binary.is_file():
+        raise RuntimeError("Compiled package identity missing: "+str(binary))
+    return binary
+
+
+def public_consumer_identity(root, target, output):
+    """Bind the real workspace consumer to its declared module/build identity."""
+    native = root/"example/csv_consumer"
+    library, consumer = module_name(root), module_name(native)
+    suffix = ".js" if target == "js" else ".wasm"
+    binary = native/"_build"/target/"debug/build"/consumer/(consumer.split("/")[-1]+suffix)
+    if not binary.is_file():
+        raise RuntimeError("Executed public consumer build identity missing: "+str(binary))
+    return {"library": library, "consumer": consumer,
+            "compiledPath": binary.relative_to(root).as_posix(),
+            "compiledSHA256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+            "outputSHA256": hashlib.sha256(output.read_bytes()).hexdigest(),
+            "behaviorGate": "native-check + native-example + independent-examples"}
 
 
 def main():
@@ -72,17 +104,9 @@ def main():
 
     if args.target == "js":
         def artifact(name):
-            candidates = [p for p in (ROOT/"_build/js/debug/build").rglob(name+".js")
-                          if p.parent.name == name and p.parent.parent.name == "cmd"]
-            if len(candidates) != 1:
-                raise RuntimeError("Expected exactly one compiled "+name+" executable")
-            return candidates[0]
+            return package_binary(ROOT, "js", "cmd/"+name)
         export, catalogue, summary, inspector = [artifact(name) for name in ["export", "channels", "summary", "inspect"]]
-        receivers = [p for p in (ROOT/"_build/js/debug/build").rglob("window_receiver.js")
-                     if p.parent.name == "window_receiver" and p.parent.parent.name == "validation"]
-        if len(receivers) != 1:
-            raise RuntimeError("Expected exactly one compiled public window receiver")
-        window_receiver = receivers[0]
+        window_receiver = package_binary(ROOT, "js", "validation/window_receiver")
         consumers = [
             ("analysis", "check_analysis.py", [export]),
             ("gaps", "check_gaps.py", [export]),
@@ -111,27 +135,23 @@ def main():
         for path in sorted(base.rglob("*")):
             if path.is_file() and path.suffix in {".js", ".wasm"} and "test" not in str(path):
                 artifacts.append({"path": path.relative_to(ROOT).as_posix(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "bytes": path.stat().st_size})
+    namespace = public_consumer_identity(ROOT, args.target, out/"native.json")
     manifest = {"commit": head.stdout.decode().strip() if head.returncode == 0 else None,
                 "target": args.target, "files": files,
                 "treeSha256": hashlib.sha256("\n".join(f["path"]+" "+f["sha256"] for f in files).encode()).hexdigest(),
-                "commands": commands, "compiledArtifacts": artifacts, "trackedSourcesUnchanged": True, "status": "pass"}
+                "commands": commands, "compiledArtifacts": artifacts, "publicConsumerNamespace": namespace,
+                "trackedSourcesUnchanged": True, "status": "pass"}
     (out/"source-and-verification.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status": "pass", "target": args.target, "commandCount": len(commands), "commit": manifest["commit"], "sourceTreeSha256": manifest["treeSha256"]}))
     print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
+    print("::notice title=MDF4 verified namespace consumer::target="+args.target+" commit="+str(manifest["commit"])+" module="+namespace["library"]+" consumer="+namespace["consumer"]+" compiled="+namespace["compiledSHA256"]+" output="+namespace["outputSHA256"])
     newline_manifest = out/"record-newlines/manifest.json"
     newline_result = json.loads(newline_manifest.read_text(encoding="utf-8"))
     print("::notice title=MDF4 verified record newlines::target="+args.target+" commit="+str(manifest["commit"])+" verifier="+newline_result["verifier_sha256"]+" receiver="+newline_result["receiver_sha256"]+" fixture="+newline_result["fixture_sha256"]+" manifest="+hashlib.sha256(newline_manifest.read_bytes()).hexdigest()+" cases="+str(newline_result["case_count"])+" imports="+str(newline_result["imported_calls"]))
-    query_suffix = ".js" if args.target == "js" else ".wasm"
-    query_binaries = [p for p in (ROOT/("_build/"+args.target+"/debug/build")).rglob("query"+query_suffix)
-                      if p.parent.name == "query" and p.parent.parent.name == "example"]
-    if len(query_binaries) != 1:
-        raise RuntimeError("Expected exactly one compiled public query example")
-    print("::notice title=MDF4 verified query example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(query_binaries[0].read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"query.json").read_bytes()).hexdigest())
-    utf16_binaries = [p for p in (ROOT/("_build/"+args.target+"/debug/build")).rglob("utf16"+query_suffix)
-                      if p.parent.name == "utf16" and p.parent.parent.name == "example"]
-    if len(utf16_binaries) != 1:
-        raise RuntimeError("Expected exactly one compiled public UTF16 example")
-    print("::notice title=MDF4 verified UTF16 example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(utf16_binaries[0].read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"utf16.json").read_bytes()).hexdigest())
+    query_binary = package_binary(ROOT, args.target, "example/query")
+    print("::notice title=MDF4 verified query example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(query_binary.read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"query.json").read_bytes()).hexdigest())
+    utf16_binary = package_binary(ROOT, args.target, "example/utf16")
+    print("::notice title=MDF4 verified UTF16 example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(utf16_binary.read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"utf16.json").read_bytes()).hexdigest())
     if args.target == "js":
         print("::notice title=MDF4 verified exporter::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(export.read_bytes()).hexdigest())
         print("::notice title=MDF4 verified inspector::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(inspector.read_bytes()).hexdigest())

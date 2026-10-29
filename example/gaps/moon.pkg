@@ -1,7 +1,7 @@
 import {
-  "zhaojun-coding/mdf4" @mdf,
-  "zhaojun-coding/mdf4/analysis",
-  "zhaojun-coding/mdf4/testdata" @fixture,
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis",
+  "zhaojun-coding-2/mdf4/testdata" @fixture,
   "moonbitlang/core/json",
 }
 

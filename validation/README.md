@@ -14,7 +14,7 @@ The new `generate_utf16_fixture.py NEW_DIRECTORY` is an optional stdlib-only rep
 moon run example/query --target js > query-example.json
 python validation/check_query.py example query-example.json
 moon build cmd/export --target js
-python validation/check_query.py files _build/js/debug/build/zhaojun-coding/mdf4/cmd/export/export.js NEW_QUERY_CAPTURE_DIRECTORY
+python validation/check_query.py files _build/js/debug/build/zhaojun-coding-2/mdf4/cmd/export/export.js NEW_QUERY_CAPTURE_DIRECTORY
 ```
 
 Use a new capture directory; it retains every command, stdout/stderr, query, receipt and final manifest. Query syntax/field/index/policy errors, old alignment errors, query I/O/UTF-8, source-open precedence, new-form errors and existing-receipt protection must not yield successful partial artifacts. Source/query files are read back unchanged. The independent public example checks also run on Wasm-GC; its small public `max_cells` call must return the old `CellLimit`. No reference generator is needed or run by these receivers.

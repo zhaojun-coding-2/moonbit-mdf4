@@ -3,7 +3,7 @@ from pathlib import Path
 from fractions import Fraction
 import math,struct,subprocess,sys,csv,io,json,hashlib
 p=Path(__file__).resolve().parents[1];fdir=p/'analysis/precision_fixture'
-exe=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else p/'_build/js/debug/build/zhaojun-coding/mdf4/cmd/export/export.js'
+exe=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else p/'_build/js/debug/build/zhaojun-coding-2/mdf4/cmd/export/export.js'
 assert exe.is_file(),'Build cmd/export --target js or pass its compiled JS path'
 capture=Path(sys.argv[2]).resolve() if len(sys.argv)>2 else None
 if capture:capture.mkdir(parents=True,exist_ok=True)

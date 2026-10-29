@@ -1,6 +1,6 @@
 import {
-  "zhaojun-coding/mdf4" @mdf,
-  "zhaojun-coding/mdf4/analysis",
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis",
 }
 
 supported_targets = "js"
