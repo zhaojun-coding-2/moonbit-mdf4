@@ -68,6 +68,19 @@ Normal `open` still reads/validates/decompresses the full file, copies all group
 
 A successful window does not certify that unselected records are physically readable. A known sample-level domain, UTF-8 or master-validity error outside a window can be avoided; including that record returns its existing source error. The old whole `read_raw`/`read_channel`/`extract_channel` behavior remains unchanged. Full-file structural/budget failures still occur at open even if a requested window would avoid that location. See `validation/check_window.py` for independent original-byte and actual public-receiver checks.
 
+## Saved native window handoff
+
+The Node [native handoff command](cmd/native_handoff/README.md) replays an ordered
+saved list of group-native record windows from one content-pinned measurement.
+It saves typed raw/physical values, native clock bit patterns and validity flags,
+including invalid values, duplicates, overlap and empty windows, plus a separate
+source/request/result SHA-256 receipt. The Python stdlib saved-file receiver
+checks exact bytes and protocol consistency; independent complete literal/byte
+cases separately check sample correctness. This adds a file delivery workflow
+using the existing public APIs, without changing the single-window, alignment
+or CSV contracts. See the command documentation for its 4096-window/1,000,000
+returned-occurrence limits, units, exclusive receipt creation and I/O boundaries.
+
 ## UTF-16 fixed-record text
 
 Fixed string sample types 8 (UTF-16 LE) and 9 (UTF-16 BE) use the existing `RawValue::Text` / physical `Label` path. This adds two field encodings within the same supported MDF 4.10/4.11 fixed-record scope; it adds no format, CLI flag or scientific conversion. Channel type selects byte order. A single zero byte in an ASCII code unit is data: termination occurs at an aligned `0000` code unit, or the whole bounded field is decoded if there is no terminator. Leading FEFF content is preserved, without guessing/switching byte order or lossy replacement.

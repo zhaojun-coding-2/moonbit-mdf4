@@ -178,3 +178,30 @@ The portable example is an independent package importing the public root API. Th
 The standard-Python file consumer pins original input bytes and independently unpacks aligned integers/floats and interleaved records with `struct`, literal expectations and simple conversion arithmetic. It covers first/middle/tail/full/empty, zero-record groups, native group positions, irregular/repeated/reversed and calibrated clocks, raw UInt64 above 2^53, invalid retained values, Number/Label/Data and identity nonfinite/signed-zero bits. New owned derivatives are written only into the new capture directory; original fixtures and old reference generators are untouched.
 
 Known sample-level domain/UTF-8/invalid-master errors outside a requested window permit that window. Expanded windows and the unchanged relevant whole/raw APIs still fail, including an invalid selected value that must still be converted. Tests check metadata on empty windows, safe range overflow/error priority, absence of partial results, and full-file open failures for a late bad record ID plus existing sample/output/block budgets. The source loop is bounded to count records; no timing threshold or lazy-I/O/constant-total-memory claim is made. The focused API tests run on JS/Wasm-GC and also check independent result arrays and immutable-byte snapshots.
+## Native-window saved-file handoff
+
+After `moon build --target js`, run:
+
+```sh
+python validation/check_native_handoff.py _build/js/debug/build/zhaojun-coding-2/mdf4/cmd/native_handoff/native_handoff.js NEW_CAPTURE_DIRECTORY
+```
+
+Eight complete owned-byte/literal cases in `native-handoff-cases.json`
+are independent of product output. The real compiled public-API command and the CLI
+and imported independent saved-file receiver check complete results/receipts,
+multiple native schedules, duplicates, overlap, empty requests/windows, invalid
+values, exact UInt64 raw text, all scalar tags, Unicode, bytes and float bits.
+The native real fixture is an exact copy of the earlier owned frozen artificial
+window input (same core layout, explicit nonmonotonic clocks/negative zero and
+Identity nonfinites); no external generator or new scientific reference is used.
+Rehashed tampering checks ordering, metadata, scalar typing and repeated-record
+consistency beyond fingerprints. A separate full literal comparison detects
+semantically wrong but structurally self-consistent values; the receipt checker
+does not claim arbitrary MDF recomputation. A scoped Node filesystem seam plus
+V8 call coverage verifies one request/source read, one real public open and seven
+read_window calls while an ephemeral source path changes after loading. This
+proves use of one loaded image, not OS-level atomic acquisition.
+
+For ordinary recipients, use `verify_native_handoff.py SOURCE REQUEST RESULT
+RECEIPT`, as documented in [the command contract](../cmd/native_handoff/README.md).
+The new native result/receipt versions are independent of aligned CSV/schema.

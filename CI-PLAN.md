@@ -17,3 +17,16 @@ Each job retains raw command stdout/stderr and exit/argv/cwd in `commands.json`,
 The always-run upload step retains the job's evidence under `mdf4-TARGET-COMMIT` for 14 days. Job annotations and artifact-list metadata establish only what was reported by that run. Independently downloaded binary bytes require separate readback; metadata is not a binary download. Self-written receivers and passing CI do not establish outside product adoption, contest acceptance, MDF conformance or authenticity of unsigned receipts. Receipts validate source/CSV fingerprints and CSV/schema consistency without reparsing MDF.
 
 The owned modules are `zhaojun-coding-2/mdf4` and `zhaojun-coding-2/mdf4-csv-consumer-example`. In each target job, the existing native-check/native-example/independent-examples gates compile and execute the separate public-package consumer, checking its full CSV/schema/typed views against independent expectations. The `MDF4 verified namespace consumer` notice and `publicConsumerNamespace` manifest bind the actual declared modules, consumer compiled path/SHA-256 and complete output SHA-256. Executables are resolved within the declared module's build directory, so retained artifacts from a prior namespace are not selected by a global filename search. This is executable public-import verification, without a string-replacement-only test or package publication.
+## Native-window handoff gate
+
+The JS job additionally runs the real compiled `cmd/native_handoff` through
+`validation/check_native_handoff.py`. This is necessary for the new Node-only
+file workflow: complete frozen literal results and receipts, the independent
+saved-file receiver, request/source/group/range/metadata/resource/I/O failures,
+rehashed structural tampering, and a one-loaded-image filesystem/V8 seam.
+The `MDF4 verified native handoff` notice binds the actual commit, compiled JS,
+full literal oracle, receiver and saved consumer manifest with SHA-256 and case
+counts. The underlying library remains covered on both JS and Wasm-GC by all
+existing necessary gates. No prior gate or accepted oracle is removed or relaxed.
+The uploaded manifest and annotations are evidence metadata; they do not by
+themselves prove that a separately downloaded CI binary payload was read back.

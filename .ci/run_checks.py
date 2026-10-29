@@ -107,6 +107,7 @@ def main():
             return package_binary(ROOT, "js", "cmd/"+name)
         export, catalogue, summary, inspector = [artifact(name) for name in ["export", "channels", "summary", "inspect"]]
         window_receiver = package_binary(ROOT, "js", "validation/window_receiver")
+        native_handoff = package_binary(ROOT, "js", "cmd/native_handoff")
         consumers = [
             ("analysis", "check_analysis.py", [export]),
             ("gaps", "check_gaps.py", [export]),
@@ -120,6 +121,7 @@ def main():
             ("window", "check_window.py", ["files", window_receiver, out/"window-files"]),
             ("query", "check_query.py", ["files", export, out/"query-files"]),
             ("utf16", "check_utf16.py", ["files", inspector, export, out/"utf16-files"]),
+            ("native-handoff", "check_native_handoff.py", [native_handoff, out/"native-handoff-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -162,6 +164,9 @@ def main():
         utf16_files = out/"utf16-files/manifest.json"
         utf16_receipt = json.loads(utf16_files.read_text(encoding="utf-8"))
         print("::notice title=MDF4 verified UTF16 files::commit="+str(manifest["commit"])+" inspector="+hashlib.sha256(inspector.read_bytes()).hexdigest()+" exporter="+hashlib.sha256(export.read_bytes()).hexdigest()+" manifest="+hashlib.sha256(utf16_files.read_bytes()).hexdigest()+" cases="+str(utf16_receipt["case_count"]))
+        handoff_manifest = out/"native-handoff-files/manifest.json"
+        handoff = json.loads(handoff_manifest.read_text(encoding="utf-8"))
+        print("::notice title=MDF4 verified native handoff::commit="+str(manifest["commit"])+" compiled="+handoff["compiled"]["sha256"]+" oracle="+handoff["oracle"]["sha256"]+" receiver="+handoff["receiver"]["sha256"]+" manifest="+hashlib.sha256(handoff_manifest.read_bytes()).hexdigest()+" successes="+str(handoff["success_cases"])+" rejected="+str(len(handoff["command_failures"])))
 
 
 if __name__ == "__main__":

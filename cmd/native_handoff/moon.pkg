@@ -1,0 +1,8 @@
+import {
+  "zhaojun-coding-2/mdf4" @mdf,
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "executable")
