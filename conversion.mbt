@@ -160,11 +160,7 @@ fn convert_checked(c : Conversion, raw : RawValue) -> Value raise MdfError {
             while x > keys[i] {
               i += 1
             }
-            interpolate_finite(
-              values[i - 1],
-              values[i],
-              interpolation_fraction(keys[i - 1], keys[i], x),
-            )
+            interpolate_point(values[i - 1], values[i], keys[i - 1], keys[i], x)
           }
         }
         Enumeration(_, _, _) => x

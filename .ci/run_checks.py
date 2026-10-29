@@ -100,6 +100,8 @@ def main():
     run("independent-query-example", [sys.executable, ROOT/"validation/check_query.py", "example", out/"query.json"])
     run("utf16-example", ["moon", "run", "example/utf16", "--target", args.target], output="utf16.json")
     run("independent-utf16-example", [sys.executable, ROOT/"validation/check_utf16.py", "example", out/"utf16.json"])
+    run("interpolation-example", ["moon", "run", "example/interpolation", "--target", args.target], output="interpolation.json")
+    run("independent-interpolation-example", [sys.executable, ROOT/"validation/check_interpolation.py", "example", out/"interpolation.json"])
     run("consumer-record-newlines", [sys.executable, ROOT/"validation/check_record_newlines.py", out/"record-newlines"])
 
     if args.target == "js":
@@ -122,6 +124,7 @@ def main():
             ("query", "check_query.py", ["files", export, out/"query-files"]),
             ("utf16", "check_utf16.py", ["files", inspector, export, out/"utf16-files"]),
             ("native-handoff", "check_native_handoff.py", [native_handoff, out/"native-handoff-files"]),
+            ("interpolation", "check_interpolation.py", ["files", export, inspector, out/"interpolation-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -145,6 +148,10 @@ def main():
                 "trackedSourcesUnchanged": True, "status": "pass"}
     (out/"source-and-verification.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status": "pass", "target": args.target, "commandCount": len(commands), "commit": manifest["commit"], "sourceTreeSha256": manifest["treeSha256"]}))
+    interpolation_binary = package_binary(ROOT, args.target, "example/interpolation")
+    interpolation_cases = json.loads((ROOT/"validation/interpolation-cases.json").read_bytes())
+    interpolation_files = out/"interpolation-files/manifest.json"
+    print("::notice title=MDF4 verified interpolation precision::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(interpolation_binary.read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"interpolation.json").read_bytes()).hexdigest()+" oracle="+hashlib.sha256((ROOT/"validation/interpolation-cases.json").read_bytes()).hexdigest()+" cases="+str(len(interpolation_cases))+" points="+str(sum(len(c["queries"]) for c in interpolation_cases))+" files="+(hashlib.sha256(interpolation_files.read_bytes()).hexdigest() if args.target == "js" else "not-applicable"))
     print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
     print("::notice title=MDF4 verified namespace consumer::target="+args.target+" commit="+str(manifest["commit"])+" module="+namespace["library"]+" consumer="+namespace["consumer"]+" compiled="+namespace["compiledSHA256"]+" output="+namespace["outputSHA256"])
     newline_manifest = out/"record-newlines/manifest.json"

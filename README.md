@@ -237,6 +237,19 @@ Physical conversion is performed for requested channels and their time master. A
 
 ## Supported contract
 
+CC4 numerical table conversion and `Linear` resampling preserve representable
+near-endpoint values across wide finite brackets. For example, the identity
+interpolant from `0` to `2^1000` returns `2^-100` at that query, rather than
+rounding the dimensionless fraction to zero first. Finite interpolation works
+from the nearer bracket endpoint; a zero/subnormal fraction uses the existing
+exact dyadic arithmetic before final rounding. Exact endpoints, signed-zero and
+nonfinite compatibility, masks, `Previous`, clamping versus no extrapolation,
+and the public APIs remain as documented. This does not promise correct rounding
+or a universal ULP bound for every ordinary floating interpolation.
+`moon run example/interpolation --target wasm-gc` demonstrates full bit-pattern
+results; [the independent checks](validation/README.md#near-endpoint-interpolation)
+also exercise actual MDF file exports and calibrated master clocks.
+
 - ID and HD/DG/CG/CN/CC/TX data paths; DT, DZ, HL/DL concatenation; fixed sorted records and unsorted record IDs of 1/2/4/8 bytes. Counts, spans, chains and limits are checked.
 - Integer widths 1–64, bit offsets 0–7, LE/BE and two's-complement, including fields spanning nine bytes. This is MDF offset arithmetic, not CAN DBC sawtooth numbering. IEEE Float32/64 LE/BE, Latin-1/UTF-8/UTF-16 LE/BE fixed strings and fixed byte fields are readable. CN composition links are traversed; channel-array (CA), VLSD/virtual/MLSD and other sample types are explicitly unsupported when encountered/read.
 - CC: identity (0), linear (1), rational (2), algebraic expression (3), interpolated table (4), value-to-text enum (7, TX references and default text). Other conversion codes remain accessible through the separate raw API; physical conversion returns `UnsupportedConversion`. Nested enum conversion references are not evaluated.

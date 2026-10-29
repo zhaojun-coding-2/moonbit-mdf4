@@ -275,11 +275,7 @@ fn resample_checked(
       let v = match (s.values[i], s.values[i + 1]) {
         (Number(a), Number(b)) =>
           Number(
-            interpolate_finite(
-              a,
-              b,
-              interpolation_fraction(s.timestamps[i], s.timestamps[i + 1], t),
-            ),
+            interpolate_point(a, b, s.timestamps[i], s.timestamps[i + 1], t),
           )
         _ => raise InvalidTime("non-numeric interpolation")
       }

@@ -34,3 +34,52 @@ fn interpolate_finite(a : Double, b : Double, u : Double) -> Double {
     a + u * (b - a)
   }
 }
+
+///|
+// Avoid losing a small, representable displacement by first rounding a
+// dimensionless fraction near 0 or 1. Work from the nearer bracket endpoint;
+// when that fraction is subnormal, reuse the exact dyadic arithmetic already
+// used by numeric conversions. Ordinary fractions retain the floating path.
+fn interpolate_point(
+  a : Double,
+  b : Double,
+  lo : Double,
+  hi : Double,
+  x : Double,
+) -> Double raise MdfError {
+  if x == lo {
+    return a
+  }
+  if x == hi {
+    return b
+  }
+  // Preserve existing selected/unused nonfinite and signed-zero behavior.
+  if !finite(a) || !finite(b) || a == b {
+    return interpolate_finite(a, b, interpolation_fraction(lo, hi, x))
+  }
+  let from_right = hi - x < x - lo
+  let fraction = if from_right {
+    interpolation_fraction(-hi, -lo, -x)
+  } else {
+    interpolation_fraction(lo, hi, x)
+  }
+  if fraction >= 0x1.0p-1022 {
+    return if from_right {
+      interpolate_finite(b, a, fraction)
+    } else {
+      interpolate_finite(a, b, fraction)
+    }
+  }
+  // (a*(hi-x) + b*(x-lo)) / (hi-lo), without rounding the weights first.
+  // The caller has already checked finite, strictly increasing brackets.
+  let left = dyadic_sum(dyadic_value(hi), dyadic_value(-x))
+  let right = dyadic_sum(dyadic_value(x), dyadic_value(-lo))
+  let span = dyadic_sum(dyadic_value(hi), dyadic_value(-lo))
+  dyadic_quotient(
+    dyadic_sum(
+      dyadic_product(dyadic_value(a), left),
+      dyadic_product(dyadic_value(b), right),
+    ),
+    span,
+  )
+}

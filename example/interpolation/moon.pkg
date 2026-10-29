@@ -1,0 +1,6 @@
+import {
+  "zhaojun-coding-2/mdf4" @mdf,
+  "moonbitlang/core/json",
+}
+
+pkgtype(kind: "executable")

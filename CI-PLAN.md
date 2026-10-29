@@ -30,3 +30,13 @@ counts. The underlying library remains covered on both JS and Wasm-GC by all
 existing necessary gates. No prior gate or accepted oracle is removed or relaxed.
 The uploaded manifest and annotations are evidence metadata; they do not by
 themselves prove that a separately downloaded CI binary payload was read back.
+## Near-endpoint interpolation gate
+
+Both required jobs compile/run `example/interpolation` and compare its complete
+CC4/Linear/Previous/mask output using `validation/check_interpolation.py example`.
+The JS job also requires actual exporter/inspector consumption of three frozen
+MF4 inputs, complete CSV/schema/receipt and source-byte checks, a max-gap control
+and saved-file receipt verification. `MDF4 verified interpolation precision`
+binds target/head, actual portable compiled/output SHA-256, the full independent
+oracle, 14 cases/46 points, and the JS file-consumer manifest (not applicable to
+the portable-only Wasm-GC job). Every previous required gate remains in place.

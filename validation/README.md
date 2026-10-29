@@ -205,3 +205,28 @@ proves use of one loaded image, not OS-level atomic acquisition.
 For ordinary recipients, use `verify_native_handoff.py SOURCE REQUEST RESULT
 RECEIPT`, as documented in [the command contract](../cmd/native_handoff/README.md).
 The new native result/receipt versions are independent of aligned CSV/schema.
+## Near-endpoint interpolation
+
+The portable public consumer `example/interpolation` exercises CC4 conversion,
+`Linear` and `Previous` using 14 complete frozen input/expected cases and 46
+query points. Finite expectations use Python Fraction over the original binary64
+inputs, followed by one rounding; masks/endpoints/outside rules and the unchanged
+nonfinite/signed-zero controls are explicit complete literals. It covers collapsed
+zero/one ratios, quantized subnormal fractions, cancellation, the smallest
+representable output, true underflow, wide and subnormal time brackets.
+
+```sh
+moon run example/interpolation --target js > interpolation.json
+python validation/check_interpolation.py example interpolation.json
+python validation/check_interpolation.py files COMPILED_EXPORT_JS COMPILED_INSPECT_JS NEW_CAPTURE_DIRECTORY
+```
+
+The file receiver reads three owned MF4 byte fixtures derived from the unchanged
+catalogue input. Two patch only group0 master clock bytes for a wide positive or
+negative identity interval. The third appends an explicit identity CC4 to that
+master and uses a small interior raw clock. Original ID/header/record layout,
+UInt64 origin, groups and masks remain. Complete exported rows/schema/receipts
+and complete indexed inspector output are checked against source-byte/literal
+expectations, including a max-gap control. The existing saved CSV receiver
+verifies actual output bytes/receipts. No external MDF or NumPy execution supplies
+the oracle, and no old golden/reference generator is rerun.
