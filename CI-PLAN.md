@@ -50,3 +50,18 @@ including a full legacy summary control and four entry/I/O failures.
 `MDF4 verified numeric profile` binds exact target/head, actual compiled and output
 hashes, complete independent oracle and counts, and the JS file manifest (not
 applicable for portable-only Wasm-GC). Prior necessary gates remain unchanged.
+
+## Clock-coordinate documentation gate
+
+Both targets run the actual public `example/clock` and compare three complete
+objects against frozen literal/byte expectations with `check_clock.py example`.
+The JS target also runs seven real inspector/exporter calls through
+`check_clock.py files`: four full inspections and three CSVs/nine data rows.
+Known ms/s producer contracts, explicit copied-Series normalization with both
+interpolation policies, and the unconverted unknown-unit source are checked.
+The existing `MDF4 verified source` notice keeps target/head/source fields and
+adds `clock_compiled`, `clock_output`, `clock_oracle`, `clock_cases=3` and
+`clock_files` (not applicable to portable-only Wasm-GC). This binds the new guide
+without adding an eleventh notice to the same step. Every old required check
+and notice remains in place. The legacy seconds-labelled file output is
+verified as existing numeric behavior, not certified as seconds or normalized.

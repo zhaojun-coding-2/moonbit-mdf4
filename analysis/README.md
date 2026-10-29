@@ -2,6 +2,16 @@
 
 Import `zhaojun-coding-2/mdf4/analysis` and the root package. The library and `example/table` run on JS/Wasm-GC; `cmd/export` adapts Node file I/O.
 
+Clock coordinates remain the selected group's converted physical master numbers.
+Neither the reader nor alignment parses units, normalizes milliseconds to seconds,
+adds the HD origin or synchronizes groups. The legacy `time_s`, `max_gap_seconds`
+and `--max-gap` names perform no unit validation/conversion. Every raster and gap
+must use the same confirmed source coordinates; describe the result as seconds
+only when all selected groups already satisfy that contract. Empty units do not
+establish seconds. See [clock coordinates](../docs/clock-coordinates.md) and the
+portable `example/clock` for explicit copied-Series normalization outside the file
+exporter, known ms/s controls and an unconverted unknown-unit source.
+
 ## Channel discovery
 
 `channel_catalog_json(file : @mdf.MdfFile) -> String` serializes the opened file's existing channel metadata on JS/Wasm-GC. `cmd/channels FILE.mf4` provides the Node file adapter and `example/catalog` shows the owned duplicate-name/unit fixture. No physical channel extraction or conversion is performed by this formatter. The Node command first uses the normal in-memory `open`, including record/data validation and existing limits.
@@ -47,7 +57,7 @@ CSV schema:
 | Field | Representation |
 |---|---|
 | start_ns | Exact UInt64 decimal origin repeated on each row |
-| time_s | Original requested relative time; no re-zeroing |
+| time_s | Original requested coordinate; legacy name, no unit validation/conversion or re-zeroing |
 | label [unit] | Number text (including -0), enum/string label, or lowercase 0x byte hex; unit brackets omitted if empty |
 | value header + __valid | true or false; invalid/outside-domain value field is blank |
 

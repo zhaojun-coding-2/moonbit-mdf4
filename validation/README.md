@@ -259,3 +259,39 @@ reverse-clock equal-value ties and all-nonfinite values. The portable fixture
 package also embeds the unchanged owned native-real input. All original MF4
 files, reference outputs and old tests remain; no external generator supplies
 the expected profile, and no third-party MDF runtime is needed.
+
+## Clock coordinates
+
+The executable [clock guide](../docs/clock-coordinates.md) fixes the incorrect
+assumption that every converted master coordinate is already in seconds.
+`example/clock` reads full public metadata/raw/native Series on JS/Wasm-GC and
+explicitly normalizes only the two known producer contracts. Its three complete
+outputs retain UInt64 maximum origin, group/index identity, source units, masks
+and raw/physical values. Both normalized sources give the same Previous/Linear
+results; an empty-unit source remains unconverted with its invalid value present.
+
+Initial clock expectations were frozen before implementation/product execution.
+The first comparison exposed two incorrect raw-value expectations in the
+unknown-unit control; direct signed16 decoding of original bytes `fdff/0600`
+established `-3/6`, replacing the assumed `1/4`. The original freeze, failed
+output and executed source copy remain in the R11 report; committed
+`clock-cases.json` contains the corrected independent expectations. No input,
+example implementation or clock/normalization expectation changed for that fix.
+The two new legal MIT byte derivatives in `analysis/clock_fixture`
+append only group1 master unit/CC1 blocks to the unchanged own catalogue. Raw
+clocks 0.25/0.75 become 750/1250 ms or 0.75/1.25 s through explicit coefficients;
+the original record bytes and previous legal/failure fixtures remain intact.
+No product decoder or third-party runtime generated expected results.
+
+```sh
+moon run example/clock --target js > clock.json
+python validation/check_clock.py example clock.json
+python validation/check_clock.py files COMPILED_INSPECT_JS COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY
+```
+
+The file check retains seven real Node calls: four complete master/signal JSON
+inspections and three full CSVs/nine data rows. Native ms numbers remain unchanged
+under the old `time_s` header; a seconds raster on that ms source is wholly
+outside-domain. This documents the current contract and does not normalize or
+rename old outputs. Source inputs are byte-pinned before/after execution, and
+complete argv/stdout/stderr plus compiled/input/output hashes are captured.

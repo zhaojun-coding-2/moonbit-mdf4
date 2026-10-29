@@ -1,0 +1,253 @@
+[
+  {
+    "name": "milliseconds",
+    "source": "analysis/clock_fixture/milliseconds.mf4",
+    "sourceIdentity": {
+      "bytes": 1512,
+      "sha256": "a78eedf36703389f063abf831bfab0094ce4699a101c3a138dd029e0f73d103e"
+    },
+    "expected": {
+      "case": "milliseconds",
+      "file_version": "4.10",
+      "start_ns": "18446744073709551615",
+      "channel_index": 3,
+      "group_index": 1,
+      "master_index": 2,
+      "master_unit": "ms",
+      "source_name": "速度🚲",
+      "source_unit": "m/s",
+      "raw_master": [
+        "real:3fd0000000000000",
+        "real:3fe8000000000000"
+      ],
+      "raw_values": [
+        "signed:42",
+        "signed:-99"
+      ],
+      "native": {
+        "times": [
+          "4087700000000000",
+          "4093880000000000"
+        ],
+        "values": [
+          "4045000000000000",
+          "c058c00000000000"
+        ],
+        "valid": [
+          true,
+          true
+        ]
+      },
+      "decision": "explicit_owned_ms_contract",
+      "normalization": {
+        "divisor": "1000",
+        "seconds": {
+          "times": [
+            "3fe8000000000000",
+            "3ff4000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "c058c00000000000"
+          ],
+          "valid": [
+            true,
+            true
+          ]
+        },
+        "previous": {
+          "times": [
+            "3fe8000000000000",
+            "3ff0000000000000",
+            "3ff4000000000000",
+            "3ff8000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "4045000000000000",
+            "c058c00000000000",
+            "nan"
+          ],
+          "valid": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "linear": {
+          "times": [
+            "3fe8000000000000",
+            "3ff0000000000000",
+            "3ff4000000000000",
+            "3ff8000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "c03c800000000000",
+            "c058c00000000000",
+            "nan"
+          ],
+          "valid": [
+            true,
+            true,
+            true,
+            false
+          ]
+        }
+      }
+    },
+    "native_grid": [
+      750.0,
+      1000.0,
+      1250.0
+    ]
+  },
+  {
+    "name": "seconds",
+    "source": "analysis/clock_fixture/seconds.mf4",
+    "sourceIdentity": {
+      "bytes": 1512,
+      "sha256": "15ef28015d942da0ccf7433a55167a6cabfda413df162a3442b6df154f8ce875"
+    },
+    "expected": {
+      "case": "seconds",
+      "file_version": "4.10",
+      "start_ns": "18446744073709551615",
+      "channel_index": 3,
+      "group_index": 1,
+      "master_index": 2,
+      "master_unit": "s",
+      "source_name": "速度🚲",
+      "source_unit": "m/s",
+      "raw_master": [
+        "real:3fd0000000000000",
+        "real:3fe8000000000000"
+      ],
+      "raw_values": [
+        "signed:42",
+        "signed:-99"
+      ],
+      "native": {
+        "times": [
+          "3fe8000000000000",
+          "3ff4000000000000"
+        ],
+        "values": [
+          "4045000000000000",
+          "c058c00000000000"
+        ],
+        "valid": [
+          true,
+          true
+        ]
+      },
+      "decision": "explicit_owned_s_contract",
+      "normalization": {
+        "divisor": "1",
+        "seconds": {
+          "times": [
+            "3fe8000000000000",
+            "3ff4000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "c058c00000000000"
+          ],
+          "valid": [
+            true,
+            true
+          ]
+        },
+        "previous": {
+          "times": [
+            "3fe8000000000000",
+            "3ff0000000000000",
+            "3ff4000000000000",
+            "3ff8000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "4045000000000000",
+            "c058c00000000000",
+            "nan"
+          ],
+          "valid": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "linear": {
+          "times": [
+            "3fe8000000000000",
+            "3ff0000000000000",
+            "3ff4000000000000",
+            "3ff8000000000000"
+          ],
+          "values": [
+            "4045000000000000",
+            "c03c800000000000",
+            "c058c00000000000",
+            "nan"
+          ],
+          "valid": [
+            true,
+            true,
+            true,
+            false
+          ]
+        }
+      }
+    },
+    "native_grid": [
+      0.75,
+      1.0,
+      1.25
+    ]
+  },
+  {
+    "name": "unknown-unit",
+    "source": "analysis/catalog_fixture/catalog.mf4",
+    "sourceIdentity": {
+      "bytes": 1384,
+      "sha256": "2ce2e2a4492429d8ddc77947a72733102c2469dd4293a28fabd885c541605e0d"
+    },
+    "expected": {
+      "case": "unknown-unit",
+      "file_version": "4.10",
+      "start_ns": "18446744073709551615",
+      "channel_index": 1,
+      "group_index": 0,
+      "master_index": 0,
+      "master_unit": "",
+      "source_name": "速度🚲",
+      "source_unit": "km/h",
+      "raw_master": [
+        "real:0000000000000000",
+        "real:3ff0000000000000"
+      ],
+      "raw_values": [
+        "signed:-3",
+        "signed:6"
+      ],
+      "native": {
+        "times": [
+          "0000000000000000",
+          "3ff0000000000000"
+        ],
+        "values": [
+          "c008000000000000",
+          "4018000000000000"
+        ],
+        "valid": [
+          true,
+          false
+        ]
+      },
+      "decision": "caller_clock_contract_required",
+      "normalization": null
+    }
+  }
+]

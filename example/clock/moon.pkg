@@ -1,0 +1,8 @@
+import {
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis/clock_fixture",
+  "zhaojun-coding-2/mdf4/analysis/catalog_fixture" @catalog,
+  "moonbitlang/core/json",
+}
+
+pkgtype(kind: "executable")

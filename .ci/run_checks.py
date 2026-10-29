@@ -104,6 +104,8 @@ def main():
     run("independent-interpolation-example", [sys.executable, ROOT/"validation/check_interpolation.py", "example", out/"interpolation.json"])
     run("profile-example", ["moon", "run", "example/profile", "--target", args.target], output="profile.json")
     run("independent-profile-example", [sys.executable, ROOT/"validation/check_profile.py", "example", out/"profile.json"])
+    run("clock-example", ["moon", "run", "example/clock", "--target", args.target], output="clock.json")
+    run("independent-clock-example", [sys.executable, ROOT/"validation/check_clock.py", "example", out/"clock.json"])
     run("consumer-record-newlines", [sys.executable, ROOT/"validation/check_record_newlines.py", out/"record-newlines"])
 
     if args.target == "js":
@@ -128,6 +130,7 @@ def main():
             ("native-handoff", "check_native_handoff.py", [native_handoff, out/"native-handoff-files"]),
             ("interpolation", "check_interpolation.py", ["files", export, inspector, out/"interpolation-files"]),
             ("profile", "check_profile.py", ["files", summary, out/"profile-files"]),
+            ("clock", "check_clock.py", ["files", inspector, export, out/"clock-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -159,7 +162,9 @@ def main():
     interpolation_cases = json.loads((ROOT/"validation/interpolation-cases.json").read_bytes())
     interpolation_files = out/"interpolation-files/manifest.json"
     print("::notice title=MDF4 verified interpolation precision::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(interpolation_binary.read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"interpolation.json").read_bytes()).hexdigest()+" oracle="+hashlib.sha256((ROOT/"validation/interpolation-cases.json").read_bytes()).hexdigest()+" cases="+str(len(interpolation_cases))+" points="+str(sum(len(c["queries"]) for c in interpolation_cases))+" files="+(hashlib.sha256(interpolation_files.read_bytes()).hexdigest() if args.target == "js" else "not-applicable"))
-    print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
+    clock_binary = package_binary(ROOT, args.target, "example/clock")
+    clock_files = out/"clock-files/manifest.json"
+    print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"]+" clock_compiled="+hashlib.sha256(clock_binary.read_bytes()).hexdigest()+" clock_output="+hashlib.sha256((out/"clock.json").read_bytes()).hexdigest()+" clock_oracle="+hashlib.sha256((ROOT/"validation/clock-cases.json").read_bytes()).hexdigest()+" clock_cases=3 clock_files="+(hashlib.sha256(clock_files.read_bytes()).hexdigest() if args.target == "js" else "not-applicable"))
     print("::notice title=MDF4 verified namespace consumer::target="+args.target+" commit="+str(manifest["commit"])+" module="+namespace["library"]+" consumer="+namespace["consumer"]+" compiled="+namespace["compiledSHA256"]+" output="+namespace["outputSHA256"])
     newline_manifest = out/"record-newlines/manifest.json"
     newline_result = json.loads(newline_manifest.read_text(encoding="utf-8"))
