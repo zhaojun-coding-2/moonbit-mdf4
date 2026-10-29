@@ -1,5 +1,7 @@
 # Reproducible verification
 
+The UTF-16 fixed-sample extension adds both-target public `utf16-example` / `independent-utf16-example` checks and JS `consumer-utf16` against the actual unchanged inspector/export entry points. All existing science, query, window and other gates remain required. Successful runs report actual UTF16 example binary/output hashes and file-receiver inspector/exporter/manifest identity; these runner notices are kept distinct from independently downloaded binary payloads.
+
 The saved-query gates add `query-example` and `independent-query-example` on both targets, plus JS `consumer-query` against the actual compiled exporter and complete saved CSV/receipt artifacts. All earlier compiler/tests/examples/consumers remain required. After successful checks the runner reports the actual public query binary/output SHA-256 on each backend and the JS file receiver's manifest/exporter identity, alongside the existing exact-head source/exporter/inspector/window notices. Local targeted validation does not substitute for this complete real CI workflow.
 
 CI uses ordinary Ubuntu 24.04 hosted runners, separate JS/Wasm-GC jobs and a 20-minute timeout. The MoonBit toolchain/core archives, module archive versions/hashes and upstream NyaCSV commit are pinned in this directory. GitHub's official checkout/setup/upload actions are pinned by commit. The SDK download interface and standard-library bundle commands follow the official MoonBit distribution/installer; no floating installer is executed and no global SDK/profile is edited.

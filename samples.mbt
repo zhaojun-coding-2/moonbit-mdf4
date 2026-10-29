@@ -69,6 +69,25 @@ fn raw_sample(
         },
       )
     }
+    8 | 9 => {
+      if c.bit_offset != 0 || c.bit_count % 16 != 0 {
+        raise InvalidBitField
+      }
+      let b = copy_bytes(data, c.byte_offset, c.bit_count / 8)
+      let mut n = 0
+      while n < b.length() && !(b[n] == b'\x00' && b[n + 1] == b'\x00') {
+        n += 2
+      }
+      Text(
+        @utf16.decode(
+          b[0:n],
+          ignore_bom=false,
+          endianness=if c.data_type == 9 { @utf16.Big } else { @utf16.Little },
+        ) catch {
+          _ => raise CorruptedBlock("invalid UTF-16 sample")
+        },
+      )
+    }
     6 | 7 | 10 => {
       if c.bit_offset != 0 || c.bit_count % 8 != 0 {
         raise InvalidBitField

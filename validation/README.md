@@ -1,5 +1,11 @@
 # Independent reference reproduction
 
+## UTF-16 fixed sample receivers
+
+`example/utf16` is a separately compiled public reader/alignment consumer on JS and Wasm-GC. Its raw/physical/window/mask report and complete CSV/schema are checked by `check_utf16.py example OUTPUT_JSON`. `check_utf16.py files COMPILED_INSPECT_JS COMPILED_EXPORT_JS NEW_CAPTURE_DIRECTORY` invokes the existing file CLIs and verifies full inspector objects and saved CSV/schema/receipt against original bytes, hand Unicode/code units and standard-library CSV/struct/hash readback. It covers both MDF4.10/4.11 headers, both endiannesses, surrogate bounds/failures, aligned NUL versus single zero bytes, BOM content, field limits, independent invalid bits, and unchanged Latin-1/UTF-8/bytes controls. No producer decoder/encoder supplies the oracle.
+
+The new `generate_utf16_fixture.py NEW_DIRECTORY` is an optional stdlib-only reproducer for this one owned measurement; existing generators are not rerun by its checks. It copies the own baseline64-byte ID verbatim (4.11/411 and original program marker), constructs every later block/record with literal code units, and does not claim asammdf generated or runtime-validated this file. Source fixture bytes are preserved by all consumers.
+
 ## Saved query public and file receivers
 
 `validation/check_query.py` uses only Python standard library, original owned input bytes, `struct`, literal metadata/cells and CSV/hash readback. It is not a decoder dependency or a producer-derived oracle. The shipped calibrated query's complete four rows include exact UInt64 origin, Unicode labels, an inclusive gap endpoint and a retained invalid row; mixed ordered columns add Data, numeric Linear, numeric-looking Label, negative-zero time and quote/comma/newline headers. Full schema and existing receipt source/CSV byte lengths and SHA-256 must agree. Old inline/`@RASTER` commands are separate compatibility controls, including labels literally named `--query`.

@@ -4,6 +4,7 @@ import {
   "moonbitlang/core/string",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/encoding/utf16",
   "gmlewis/zlib",
   "gmlewis/io",
 }

@@ -66,6 +66,8 @@ def main():
     run("independent-window-example", [sys.executable, ROOT/"validation/check_window.py", "example", out/"window.json"])
     run("query-example", ["moon", "run", "example/query", "--target", args.target], output="query.json")
     run("independent-query-example", [sys.executable, ROOT/"validation/check_query.py", "example", out/"query.json"])
+    run("utf16-example", ["moon", "run", "example/utf16", "--target", args.target], output="utf16.json")
+    run("independent-utf16-example", [sys.executable, ROOT/"validation/check_utf16.py", "example", out/"utf16.json"])
 
     if args.target == "js":
         def artifact(name):
@@ -92,6 +94,7 @@ def main():
             ("inspect", "check_inspect.py", [catalogue, inspector, out/"inspect"]),
             ("window", "check_window.py", ["files", window_receiver, out/"window-files"]),
             ("query", "check_query.py", ["files", export, out/"query-files"]),
+            ("utf16", "check_utf16.py", ["files", inspector, export, out/"utf16-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -120,6 +123,11 @@ def main():
     if len(query_binaries) != 1:
         raise RuntimeError("Expected exactly one compiled public query example")
     print("::notice title=MDF4 verified query example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(query_binaries[0].read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"query.json").read_bytes()).hexdigest())
+    utf16_binaries = [p for p in (ROOT/("_build/"+args.target+"/debug/build")).rglob("utf16"+query_suffix)
+                      if p.parent.name == "utf16" and p.parent.parent.name == "example"]
+    if len(utf16_binaries) != 1:
+        raise RuntimeError("Expected exactly one compiled public UTF16 example")
+    print("::notice title=MDF4 verified UTF16 example::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(utf16_binaries[0].read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"utf16.json").read_bytes()).hexdigest())
     if args.target == "js":
         print("::notice title=MDF4 verified exporter::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(export.read_bytes()).hexdigest())
         print("::notice title=MDF4 verified inspector::commit="+str(manifest["commit"])+" sha256="+hashlib.sha256(inspector.read_bytes()).hexdigest())
@@ -127,6 +135,9 @@ def main():
         query_files = out/"query-files/manifest.json"
         query_receipt = json.loads(query_files.read_text(encoding="utf-8"))
         print("::notice title=MDF4 verified query files::commit="+str(manifest["commit"])+" exporter="+hashlib.sha256(export.read_bytes()).hexdigest()+" manifest="+hashlib.sha256(query_files.read_bytes()).hexdigest()+" cases="+str(query_receipt["case_count"]))
+        utf16_files = out/"utf16-files/manifest.json"
+        utf16_receipt = json.loads(utf16_files.read_text(encoding="utf-8"))
+        print("::notice title=MDF4 verified UTF16 files::commit="+str(manifest["commit"])+" inspector="+hashlib.sha256(inspector.read_bytes()).hexdigest()+" exporter="+hashlib.sha256(export.read_bytes()).hexdigest()+" manifest="+hashlib.sha256(utf16_files.read_bytes()).hexdigest()+" cases="+str(utf16_receipt["case_count"]))
 
 
 if __name__ == "__main__":

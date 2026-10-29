@@ -68,6 +68,22 @@ Normal `open` still reads/validates/decompresses the full file, copies all group
 
 A successful window does not certify that unselected records are physically readable. A known sample-level domain, UTF-8 or master-validity error outside a window can be avoided; including that record returns its existing source error. The old whole `read_raw`/`read_channel`/`extract_channel` behavior remains unchanged. Full-file structural/budget failures still occur at open even if a requested window would avoid that location. See `validation/check_window.py` for independent original-byte and actual public-receiver checks.
 
+## UTF-16 fixed-record text
+
+Fixed string sample types 8 (UTF-16 LE) and 9 (UTF-16 BE) use the existing `RawValue::Text` / physical `Label` path. This adds two field encodings within the same supported MDF 4.10/4.11 fixed-record scope; it adds no format, CLI flag or scientific conversion. Channel type selects byte order. A single zero byte in an ASCII code unit is data: termination occurs at an aligned `0000` code unit, or the whole bounded field is decoded if there is no terminator. Leading FEFF content is preserved, without guessing/switching byte order or lossy replacement.
+
+```powershell
+moon run example/utf16 --target js
+moon run example/utf16 --target wasm-gc
+moon run cmd/inspect --target js -- testdata/utf16.mf4 --index 1
+moon run cmd/export --target js -- testdata/utf16.mf4 "0,1,2,3,4,5" le 1 previous be 2 previous --receipt utf16-receipt.json > utf16.csv
+python validation/verify_export.py testdata/utf16.mf4 utf16.csv utf16-receipt.json
+```
+
+The owned six-record 4.11 sample includes ASCII, 龙🧪, valid empty text, quotes/newline, 月兔 and eight digits in both byte orders. Raw/physical strings are retained even when an invalidation bit is set; CSV still suppresses invalid fields while preserving valid empty text. Origin remains exact UInt64 maximum, source clocks/units/order and all existing CSV/schema/receipt rules remain unchanged. The public example and real-file inspector/export receivers check complete outputs against hand code units and independent CSV/byte expectations; no third-party adoption is claimed.
+
+UTF-16 requires bit offset zero and a bit count divisible by 16. Ill-formed surrogate sequences before the first aligned NUL return `CorruptedBlock("invalid UTF-16 sample")`; shape failures return the existing `InvalidBitField`, and field bounds use the old error path. There is no invalid-sample skipping. Latin-1/UTF-8/byte-array decoding is unchanged. VLSD, MIME and BOM-switched type 17 remain unsupported. `validation/generate_utf16_fixture.py NEW_DIRECTORY` reproduces only this owned fixture in a fresh directory; its copied ID header/program marker does not assert that an external generator validated the new blocks.
+
 ## Multi-channel analysis and CSV
 
 The additive `zhaojun-coding/mdf4/analysis` package turns selected channels into one typed table on an explicit raster. This bridges MDF sampling/validity semantics to analysis tools. General table and CSV tools already exist, including [MoonFrame](https://github.com/ihb2032/MoonFrame) and [NyaCSV](https://mooncakes.io/docs/moonbit-community/NyaCSV); this package focuses on MDF selection, per-column interpolation and retained validity. The ecosystem review and candidates are recorded in the feature-08 receipt; bounded searches do not establish uniqueness.
@@ -217,7 +233,7 @@ The bounded round-12 audit reproduced these paths using three new report-only de
 ## Supported contract
 
 - ID and HD/DG/CG/CN/CC/TX data paths; DT, DZ, HL/DL concatenation; fixed sorted records and unsorted record IDs of 1/2/4/8 bytes. Counts, spans, chains and limits are checked.
-- Integer widths 1–64, bit offsets 0–7, LE/BE and two's-complement, including fields spanning nine bytes. This is MDF offset arithmetic, not CAN DBC sawtooth numbering. IEEE Float32/64 LE/BE, Latin-1/UTF-8 fixed strings and fixed byte fields are readable. CN composition links are traversed; channel-array (CA), VLSD/virtual/MLSD and other sample types are explicitly unsupported when encountered/read.
+- Integer widths 1–64, bit offsets 0–7, LE/BE and two's-complement, including fields spanning nine bytes. This is MDF offset arithmetic, not CAN DBC sawtooth numbering. IEEE Float32/64 LE/BE, Latin-1/UTF-8/UTF-16 LE/BE fixed strings and fixed byte fields are readable. CN composition links are traversed; channel-array (CA), VLSD/virtual/MLSD and other sample types are explicitly unsupported when encountered/read.
 - CC: identity (0), linear (1), rational (2), algebraic expression (3), interpolated table (4), value-to-text enum (7, TX references and default text). Other conversion codes remain accessible through the separate raw API; physical conversion returns `UnsupportedConversion`. Nested enum conversion references are not evaluated.
 - Formula grammar: finite decimal/exponent literals; `X`, `X1`, `PI`, `pi`, `e`; parentheses; unary `+/-`; binary `+ - * / ^ **` (right-associative power, above unary minus); `sin cos tan asin acos atan exp ln log log10 sqrt abs floor ceil`, plus two-argument `min max pow`. `log` is natural log. Unknown names, invalid syntax, non-finite/domain results and limits return `InvalidFormula`. This is an explicit mathematical subset, not full GES.
 - DZ mode 0/1: RFC1950 zlib/Deflate, checksum read through EOF, exact output size, inverse byte transpose and untransposed tail remainder.
