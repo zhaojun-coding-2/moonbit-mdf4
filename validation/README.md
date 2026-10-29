@@ -79,6 +79,14 @@ This verifies SHA-256 and byte counts, UTF-8/CRLF representation, headers, compl
 
 JSON `true`/`false` are invalid in integer `row_count`, column `channel`, `valid_rows` and `invalid_rows` metadata, including where their Python values compare equal to 0 or 1. The verifier rejects those substitutions through both its imported function and the saved-file CLI. Genuine integer 0/1 metadata, CSV bytes, fingerprints and other numeric parsing remain unchanged.
 
+The `csv.newline: "CRLF"` declaration applies to every record separator. A fingerprint-consistent file with an interior bare LF/CR is rejected even if its final record still ends in CRLF. Python's `csv.reader(strict=True)` accepts those separators ([standard-library documentation](https://docs.python.org/3/library/csv.html#csv.Dialect.lineterminator)), so a quote-aware byte check follows the existing strict syntax parse. Quoted LF/CR/CRLF, doubled quotes, literal quotes inside unquoted fields, valid empty text and invalid blanks remain legal. Existing fingerprint, final-CRLF and syntax errors retain precedence; the caller's field limit is restored before the representation check.
+
+```powershell
+python validation/check_record_newlines.py NEW_CAPTURE_DIRECTORY
+```
+
+The capture directory must be new. Eight complete inputs and literal expected rows/errors are frozen in `record-newlines-cases.json`: two accepted controls, three interior-separator rejections, and three existing error controls. The receiver executes the saved-file verifier CLI eight times and imports it at both the caller's current field limit and 17 bytes (16 calls), retaining every input, exit, stdout/stderr and SHA-256 manifest. Its canonical CSV/receipt reuses the accepted UTF-16 producer output without rerunning that suite. Hand-written receipt/CSV controls check this verifier's declared representation; they do not assert correspondence to MDF samples, reparse MDF or demonstrate external adoption. Both CI jobs require this receiver.
+
 The same `check_receipts.py` additionally saves one real two-column, one-row export with channel indices 0/1, then checks complete literal CSV bytes and standard CSV readback. It rejects 14 independent boolean substitutions across the seven integer metadata positions using both consumer entrypoints, checks clean CLI failure output, and retains two previously accepted numeric count spellings. Together with the original cases, the harness now checks nine receipt exports/18 data rows; no historical fixture is changed.
 
 Round 11 also ran `check_gap_precision.py` against the changed exporter (16 scenarios/17 rows). The unchanged round-10 exact comparison code and 149 fixed vectors were preserved byte-for-byte; their successful numerical suite was not rerun.

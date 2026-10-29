@@ -9,6 +9,29 @@ import sys,json,hashlib,csv,io,math
 def require(condition,message):
  if not condition:raise ValueError(message)
 
+def _require_crlf_records(data):
+ # csv.reader(strict=True) still accepts bare CR/LF record separators.
+ # Run only after its syntax check; quotes inside unquoted fields are literal.
+ state='field_start';i=0
+ while i<len(data):
+  byte=data[i]
+  if state=='quoted':
+   if byte==34:state='after_quote'
+  elif state=='after_quote' and byte==34:
+   state='quoted'
+  elif byte==13:
+   require(i+1<len(data) and data[i+1]==10,'CSV record separators must be CRLF')
+   i+=1;state='field_start'
+  elif byte==10:
+   raise ValueError('CSV record separators must be CRLF')
+  elif byte==44:
+   state='field_start'
+  elif state=='field_start' and byte==34:
+   state='quoted'
+  else:
+   state='unquoted'
+  i+=1
+
 def verify(source_bytes,csv_bytes,receipt):
  require(receipt.get('receipt_version')=='mdf4.analysis.receipt/1','unknown receipt version')
  for key,data in [('source',source_bytes),('csv',csv_bytes)]:
@@ -25,6 +48,7 @@ def verify(source_bytes,csv_bytes,receipt):
   rows=list(csv.reader(io.StringIO(csv_bytes.decode('utf-8'),newline=''),strict=True))
  finally:
   csv.field_size_limit(previous_field_limit)
+ _require_crlf_records(csv_bytes)
  table=receipt.get('table',{})
  require(table.get('schema_version')=='mdf4.analysis.schema/1','unknown table schema version')
  columns=table.get('columns',[])

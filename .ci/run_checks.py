@@ -68,6 +68,7 @@ def main():
     run("independent-query-example", [sys.executable, ROOT/"validation/check_query.py", "example", out/"query.json"])
     run("utf16-example", ["moon", "run", "example/utf16", "--target", args.target], output="utf16.json")
     run("independent-utf16-example", [sys.executable, ROOT/"validation/check_utf16.py", "example", out/"utf16.json"])
+    run("consumer-record-newlines", [sys.executable, ROOT/"validation/check_record_newlines.py", out/"record-newlines"])
 
     if args.target == "js":
         def artifact(name):
@@ -117,6 +118,9 @@ def main():
     (out/"source-and-verification.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status": "pass", "target": args.target, "commandCount": len(commands), "commit": manifest["commit"], "sourceTreeSha256": manifest["treeSha256"]}))
     print("::notice title=MDF4 verified source::target="+args.target+" commit="+str(manifest["commit"])+" source="+manifest["treeSha256"])
+    newline_manifest = out/"record-newlines/manifest.json"
+    newline_result = json.loads(newline_manifest.read_text(encoding="utf-8"))
+    print("::notice title=MDF4 verified record newlines::target="+args.target+" commit="+str(manifest["commit"])+" verifier="+newline_result["verifier_sha256"]+" receiver="+newline_result["receiver_sha256"]+" fixture="+newline_result["fixture_sha256"]+" manifest="+hashlib.sha256(newline_manifest.read_bytes()).hexdigest()+" cases="+str(newline_result["case_count"])+" imports="+str(newline_result["imported_calls"]))
     query_suffix = ".js" if args.target == "js" else ".wasm"
     query_binaries = [p for p in (ROOT/("_build/"+args.target+"/debug/build")).rglob("query"+query_suffix)
                       if p.parent.name == "query" and p.parent.parent.name == "example"]

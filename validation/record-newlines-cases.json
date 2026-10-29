@@ -1,0 +1,811 @@
+{
+  "version": "mdf4.record-newlines.cases/1",
+  "candidate_count": 1,
+  "contract": "receipt.csv.newline=CRLF describes each record separator. Embedded LF, CR and CRLF inside quoted fields, doubled quotes, valid empty values and literal quotes in unquoted fields remain accepted. Existing fingerprint, final-terminator and strict-syntax errors retain precedence.",
+  "source_path": "testdata/utf16.mf4",
+  "source_sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+  "source_bytes": 1288,
+  "provenance": "Canonical producer CSV/receipt are unchanged accepted R05 saved artifacts. Other full byte inputs are explicit representation derivatives or hand-written receipt/CSV contract controls, not external adoption or MDF semantic oracle claims.",
+  "independent_reference": {
+    "url": "https://docs.python.org/3/library/csv.html#csv.Dialect.lineterminator",
+    "fact": "The standard reader recognises CR or LF as record endings and ignores lineterminator even in strict mode; it alone does not enforce a declared CRLF representation."
+  },
+  "cases": [
+    {
+      "name": "producer-canonical",
+      "kind": "accepted R05 actual producer output reused without regeneration",
+      "csv_base64": "InN0YXJ0X25zIiwidGltZV9zIiwibGUgW3N0YXRlXSIsImxlIFtzdGF0ZV1fX3ZhbGlkIiwiYmUgW3N0YXRlXSIsImJlIFtzdGF0ZV1fX3ZhbGlkIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMCIsIkEiLCJ0cnVlIiwiQSIsInRydWUiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCIxIiwiIiwiZmFsc2UiLCLpvpnwn6eqIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjIiLCIiLCJ0cnVlIiwiIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjMiLCLDqSwiIgpaIiwidHJ1ZSIsIiIsImZhbHNlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNCIsIuaciOWFlCIsInRydWUiLCLmnIjlhZQiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNSIsIjEyMzQ1Njc4IiwidHJ1ZSIsIjEyMzQ1Njc4IiwidHJ1ZSINCg==",
+      "csv_sha256": "391ba47666c632d625dadec75de48da06e5cd7caae6f60294e5477e7bbac7759",
+      "csv_bytes": 421,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "391ba47666c632d625dadec75de48da06e5cd7caae6f60294e5477e7bbac7759",
+          "bytes": 421,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "18446744073709551615",
+          "row_count": 6,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "5",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "le",
+              "source_name": "status LE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "le [state]",
+              "validity_header": "le [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            },
+            {
+              "channel": 2,
+              "label": "be",
+              "source_name": "status BE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "be [state]",
+              "validity_header": "be [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "2ae4a53530ea5cfbd67b2a49147a4318cf4d28d61b5a23a2ed53e51066f170f3",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "le [state]",
+          "le [state]__valid",
+          "be [state]",
+          "be [state]__valid"
+        ],
+        [
+          "18446744073709551615",
+          "0",
+          "A",
+          "true",
+          "A",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "1",
+          "",
+          "false",
+          "龙🧪",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "2",
+          "",
+          "true",
+          "",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "3",
+          "é,\"\nZ",
+          "true",
+          "",
+          "false"
+        ],
+        [
+          "18446744073709551615",
+          "4",
+          "月兔",
+          "true",
+          "月兔",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "5",
+          "12345678",
+          "true",
+          "12345678",
+          "true"
+        ]
+      ],
+      "expected_exit": 0,
+      "expected_error": null
+    },
+    {
+      "name": "interior-lf",
+      "kind": "contract-only",
+      "csv_base64": "InN0YXJ0X25zIiwidGltZV9zIiwibGUgW3N0YXRlXSIsImxlIFtzdGF0ZV1fX3ZhbGlkIiwiYmUgW3N0YXRlXSIsImJlIFtzdGF0ZV1fX3ZhbGlkIgoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCIwIiwiQSIsInRydWUiLCJBIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjEiLCIiLCJmYWxzZSIsIum+mfCfp6oiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMiIsIiIsInRydWUiLCIiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMyIsIsOpLCIiCloiLCJ0cnVlIiwiIiwiZmFsc2UiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCI0Iiwi5pyI5YWUIiwidHJ1ZSIsIuaciOWFlCIsInRydWUiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCI1IiwiMTIzNDU2NzgiLCJ0cnVlIiwiMTIzNDU2NzgiLCJ0cnVlIg0K",
+      "csv_sha256": "3aa128f9cc1db6ac08fce29f40739c12a9a522002daee1e7a6131c453b83e841",
+      "csv_bytes": 420,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "3aa128f9cc1db6ac08fce29f40739c12a9a522002daee1e7a6131c453b83e841",
+          "bytes": 420,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "18446744073709551615",
+          "row_count": 6,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "5",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "le",
+              "source_name": "status LE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "le [state]",
+              "validity_header": "le [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            },
+            {
+              "channel": 2,
+              "label": "be",
+              "source_name": "status BE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "be [state]",
+              "validity_header": "be [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "b9adbc7b98cd84dcf271732454d98f6c84c2c5177ac7997949736e4738719b1b",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "le [state]",
+          "le [state]__valid",
+          "be [state]",
+          "be [state]__valid"
+        ],
+        [
+          "18446744073709551615",
+          "0",
+          "A",
+          "true",
+          "A",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "1",
+          "",
+          "false",
+          "龙🧪",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "2",
+          "",
+          "true",
+          "",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "3",
+          "é,\"\nZ",
+          "true",
+          "",
+          "false"
+        ],
+        [
+          "18446744073709551615",
+          "4",
+          "月兔",
+          "true",
+          "月兔",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "5",
+          "12345678",
+          "true",
+          "12345678",
+          "true"
+        ]
+      ],
+      "expected_exit": 1,
+      "expected_error": "CSV record separators must be CRLF"
+    },
+    {
+      "name": "interior-cr",
+      "kind": "contract-only",
+      "csv_base64": "InN0YXJ0X25zIiwidGltZV9zIiwibGUgW3N0YXRlXSIsImxlIFtzdGF0ZV1fX3ZhbGlkIiwiYmUgW3N0YXRlXSIsImJlIFtzdGF0ZV1fX3ZhbGlkIg0iMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCIwIiwiQSIsInRydWUiLCJBIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjEiLCIiLCJmYWxzZSIsIum+mfCfp6oiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMiIsIiIsInRydWUiLCIiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMyIsIsOpLCIiCloiLCJ0cnVlIiwiIiwiZmFsc2UiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCI0Iiwi5pyI5YWUIiwidHJ1ZSIsIuaciOWFlCIsInRydWUiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCI1IiwiMTIzNDU2NzgiLCJ0cnVlIiwiMTIzNDU2NzgiLCJ0cnVlIg0K",
+      "csv_sha256": "33338a42cdb819cd1c105dd0eee53264a19e6493b4d140d09ce65c6ab548812b",
+      "csv_bytes": 420,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "33338a42cdb819cd1c105dd0eee53264a19e6493b4d140d09ce65c6ab548812b",
+          "bytes": 420,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "18446744073709551615",
+          "row_count": 6,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "5",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "le",
+              "source_name": "status LE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "le [state]",
+              "validity_header": "le [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            },
+            {
+              "channel": 2,
+              "label": "be",
+              "source_name": "status BE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "be [state]",
+              "validity_header": "be [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "5921887377f4aba3054266a5c8eeea574a4bdd90af0fb23e5e786c689fae828b",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "le [state]",
+          "le [state]__valid",
+          "be [state]",
+          "be [state]__valid"
+        ],
+        [
+          "18446744073709551615",
+          "0",
+          "A",
+          "true",
+          "A",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "1",
+          "",
+          "false",
+          "龙🧪",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "2",
+          "",
+          "true",
+          "",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "3",
+          "é,\"\nZ",
+          "true",
+          "",
+          "false"
+        ],
+        [
+          "18446744073709551615",
+          "4",
+          "月兔",
+          "true",
+          "月兔",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "5",
+          "12345678",
+          "true",
+          "12345678",
+          "true"
+        ]
+      ],
+      "expected_exit": 1,
+      "expected_error": "CSV record separators must be CRLF"
+    },
+    {
+      "name": "quoted-content-and-unquoted-quote",
+      "kind": "contract-only",
+      "csv_base64": "c3RhcnRfbnMsdGltZV9zLGxhYmVsLGxhYmVsX192YWxpZA0KNywwLCJsaW5lCmZlZWQiLHRydWUNCjcsMSwiY2FycmlhZ2UNcmV0dXJuIix0cnVlDQo3LDIsImJvdGgNCmxpbmVzIix0cnVlDQo3LDMsInF1b3RlIiIKbmV4dCIsdHJ1ZQ0KNyw0LEEiQix0cnVlDQo3LDUsLHRydWUNCjcsNiwsZmFsc2UNCg==",
+      "csv_sha256": "12c5bdf7f5e943a53df30a0e0665b104ecd233de837f99963b3d8354c1510ea6",
+      "csv_bytes": 172,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "12c5bdf7f5e943a53df30a0e0665b104ecd233de837f99963b3d8354c1510ea6",
+          "bytes": 172,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "7",
+          "row_count": 7,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "6",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "label",
+              "source_name": "contract-only label",
+              "unit": "",
+              "interpolation": "previous",
+              "value_header": "label",
+              "validity_header": "label__valid",
+              "valid_rows": 6,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "688c8742d31daa13b4922fd635daa23908e6bb737353f8a63f68a4e7486bcbbb",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "label",
+          "label__valid"
+        ],
+        [
+          "7",
+          "0",
+          "line\nfeed",
+          "true"
+        ],
+        [
+          "7",
+          "1",
+          "carriage\rreturn",
+          "true"
+        ],
+        [
+          "7",
+          "2",
+          "both\r\nlines",
+          "true"
+        ],
+        [
+          "7",
+          "3",
+          "quote\"\nnext",
+          "true"
+        ],
+        [
+          "7",
+          "4",
+          "A\"B",
+          "true"
+        ],
+        [
+          "7",
+          "5",
+          "",
+          "true"
+        ],
+        [
+          "7",
+          "6",
+          "",
+          "false"
+        ]
+      ],
+      "expected_exit": 0,
+      "expected_error": null
+    },
+    {
+      "name": "bare-lf-after-literal-quote",
+      "kind": "contract-only",
+      "csv_base64": "c3RhcnRfbnMsdGltZV9zLGxhYmVsLGxhYmVsX192YWxpZA0KNywwLCJsaW5lCmZlZWQiLHRydWUNCjcsMSwiY2FycmlhZ2UNcmV0dXJuIix0cnVlDQo3LDIsImJvdGgNCmxpbmVzIix0cnVlDQo3LDMsInF1b3RlIiIKbmV4dCIsdHJ1ZQ0KNyw0LEEiQix0cnVlCjcsNSwsdHJ1ZQ0KNyw2LCxmYWxzZQ0K",
+      "csv_sha256": "a11790914399681a49fe9ae0e5c641ba8ade1813d9b38d21915c6be5e5c49f22",
+      "csv_bytes": 171,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "a11790914399681a49fe9ae0e5c641ba8ade1813d9b38d21915c6be5e5c49f22",
+          "bytes": 171,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "7",
+          "row_count": 7,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "6",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "label",
+              "source_name": "contract-only label",
+              "unit": "",
+              "interpolation": "previous",
+              "value_header": "label",
+              "validity_header": "label__valid",
+              "valid_rows": 6,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "a0b33239f96051e2f735834380722ef71d0551747e91fe5731edd2763bf0d6f1",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "label",
+          "label__valid"
+        ],
+        [
+          "7",
+          "0",
+          "line\nfeed",
+          "true"
+        ],
+        [
+          "7",
+          "1",
+          "carriage\rreturn",
+          "true"
+        ],
+        [
+          "7",
+          "2",
+          "both\r\nlines",
+          "true"
+        ],
+        [
+          "7",
+          "3",
+          "quote\"\nnext",
+          "true"
+        ],
+        [
+          "7",
+          "4",
+          "A\"B",
+          "true"
+        ],
+        [
+          "7",
+          "5",
+          "",
+          "true"
+        ],
+        [
+          "7",
+          "6",
+          "",
+          "false"
+        ]
+      ],
+      "expected_exit": 1,
+      "expected_error": "CSV record separators must be CRLF"
+    },
+    {
+      "name": "final-lf",
+      "kind": "contract-only",
+      "csv_base64": "InN0YXJ0X25zIiwidGltZV9zIiwibGUgW3N0YXRlXSIsImxlIFtzdGF0ZV1fX3ZhbGlkIiwiYmUgW3N0YXRlXSIsImJlIFtzdGF0ZV1fX3ZhbGlkIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMCIsIkEiLCJ0cnVlIiwiQSIsInRydWUiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCIxIiwiIiwiZmFsc2UiLCLpvpnwn6eqIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjIiLCIiLCJ0cnVlIiwiIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjMiLCLDqSwiIgpaIiwidHJ1ZSIsIiIsImZhbHNlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNCIsIuaciOWFlCIsInRydWUiLCLmnIjlhZQiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNSIsIjEyMzQ1Njc4IiwidHJ1ZSIsIjEyMzQ1Njc4IiwidHJ1ZSIK",
+      "csv_sha256": "7353d2a01a391be942023afbcd34e82c70cba5b695bd76d0cb0c40672ff13d20",
+      "csv_bytes": 420,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "7353d2a01a391be942023afbcd34e82c70cba5b695bd76d0cb0c40672ff13d20",
+          "bytes": 420,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "18446744073709551615",
+          "row_count": 6,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "5",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "le",
+              "source_name": "status LE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "le [state]",
+              "validity_header": "le [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            },
+            {
+              "channel": 2,
+              "label": "be",
+              "source_name": "status BE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "be [state]",
+              "validity_header": "be [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "aa48d83119a1d77ce3d1a106c5914f4b065f8829848dc3d6057ae78d29f72983",
+      "expected_rows": [
+        [
+          "start_ns",
+          "time_s",
+          "le [state]",
+          "le [state]__valid",
+          "be [state]",
+          "be [state]__valid"
+        ],
+        [
+          "18446744073709551615",
+          "0",
+          "A",
+          "true",
+          "A",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "1",
+          "",
+          "false",
+          "龙🧪",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "2",
+          "",
+          "true",
+          "",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "3",
+          "é,\"\nZ",
+          "true",
+          "",
+          "false"
+        ],
+        [
+          "18446744073709551615",
+          "4",
+          "月兔",
+          "true",
+          "月兔",
+          "true"
+        ],
+        [
+          "18446744073709551615",
+          "5",
+          "12345678",
+          "true",
+          "12345678",
+          "true"
+        ]
+      ],
+      "expected_exit": 1,
+      "expected_error": "CSV does not end in CRLF"
+    },
+    {
+      "name": "hash-mismatch",
+      "kind": "contract-only",
+      "csv_base64": "InN0YXJ0X25zIiwidGltZV9zIiwibGUgW3N0YXRlXSIsImxlIFtzdGF0ZV1fX3ZhbGlkIiwiYmUgW3N0YXRlXSIsImJlIFtzdGF0ZV1fX3ZhbGlkIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiMCIsIkIiLCJ0cnVlIiwiQSIsInRydWUiDQoiMTg0NDY3NDQwNzM3MDk1NTE2MTUiLCIxIiwiIiwiZmFsc2UiLCLpvpnwn6eqIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjIiLCIiLCJ0cnVlIiwiIiwidHJ1ZSINCiIxODQ0Njc0NDA3MzcwOTU1MTYxNSIsIjMiLCLDqSwiIgpaIiwidHJ1ZSIsIiIsImZhbHNlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNCIsIuaciOWFlCIsInRydWUiLCLmnIjlhZQiLCJ0cnVlIg0KIjE4NDQ2NzQ0MDczNzA5NTUxNjE1IiwiNSIsIjEyMzQ1Njc4IiwidHJ1ZSIsIjEyMzQ1Njc4IiwidHJ1ZSINCg==",
+      "csv_sha256": "01e7ff0de054fbf4d36df0bceaf2480f50edb11e30924762acffd5fd6ec4a839",
+      "csv_bytes": 421,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "391ba47666c632d625dadec75de48da06e5cd7caae6f60294e5477e7bbac7759",
+          "bytes": 421,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "18446744073709551615",
+          "row_count": 6,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "5",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "le",
+              "source_name": "status LE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "le [state]",
+              "validity_header": "le [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            },
+            {
+              "channel": 2,
+              "label": "be",
+              "source_name": "status BE",
+              "unit": "state",
+              "interpolation": "previous",
+              "value_header": "be [state]",
+              "validity_header": "be [state]__valid",
+              "valid_rows": 5,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "2ae4a53530ea5cfbd67b2a49147a4318cf4d28d61b5a23a2ed53e51066f170f3",
+      "expected_rows": null,
+      "expected_exit": 1,
+      "expected_error": "csv SHA-256 mismatch"
+    },
+    {
+      "name": "strict-syntax",
+      "kind": "contract-only",
+      "csv_base64": "c3RhcnRfbnMsdGltZV9zLGxhYmVsLGxhYmVsX192YWxpZA0KNywwLCJsaW5lCmZlZWQiLHRydWUNCjcsMSwiY2FycmlhZ2UNcmV0dXJuIix0cnVlDQo3LDIsImJvdGgNCmxpbmVzIix0cnVlDQo3LDMsInF1b3RlIiIKbmV4dCIsdHJ1ZQ0KNyw0LEEiQix0cnVlDQo3LDUsLHRydWUNCjcsNiwsZmFsc2UNCjcsNywidW50ZXJtaW5hdGVkDQo=",
+      "csv_sha256": "80c55b47bbcefa3460832f6414d0bd6ba3494aeea5274e3019a8bc2b47196d1c",
+      "csv_bytes": 191,
+      "receipt": {
+        "receipt_version": "mdf4.analysis.receipt/1",
+        "source": {
+          "sha256": "1c0a1b794f82f1bf47e9a0ce74282e0735999097f76d845590819c98c5b2b3fd",
+          "bytes": 1288
+        },
+        "csv": {
+          "sha256": "80c55b47bbcefa3460832f6414d0bd6ba3494aeea5274e3019a8bc2b47196d1c",
+          "bytes": 191,
+          "encoding": "UTF-8",
+          "newline": "CRLF"
+        },
+        "table": {
+          "schema_version": "mdf4.analysis.schema/1",
+          "start_ns": "7",
+          "row_count": 7,
+          "origin_header": "start_ns",
+          "time_header": "time_s",
+          "max_gap_seconds": null,
+          "first_time": "0",
+          "last_time": "6",
+          "columns": [
+            {
+              "channel": 1,
+              "label": "label",
+              "source_name": "contract-only label",
+              "unit": "",
+              "interpolation": "previous",
+              "value_header": "label",
+              "validity_header": "label__valid",
+              "valid_rows": 6,
+              "invalid_rows": 1,
+              "valid_value_kinds": [
+                "label"
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_sha256": "50b9a1943df0c915f5fd7ba11fef20447a9ab92b46bfb869dfc879428ce7cab7",
+      "expected_rows": null,
+      "expected_exit": 1,
+      "expected_error": "unexpected end of data"
+    }
+  ]
+}
