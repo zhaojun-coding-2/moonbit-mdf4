@@ -230,3 +230,32 @@ and complete indexed inspector output are checked against source-byte/literal
 expectations, including a max-gap control. The existing saved CSV receiver
 verifies actual output bytes/receipts. No external MDF or NumPy execution supplies
 the oracle, and no old golden/reference generator is rerun.
+## Finite numeric profiles
+
+`example/profile` reads the public NumericProfile/NumericExtremum fields from
+outside the owning analysis package, and separately consumes `to_json_string()`.
+The independent checker compares all typed and JSON fields against frozen
+original-byte/literal expectations. Point decimal strings are validated by exact
+binary64 value/sign bits, rather than a single assumed decimal spelling.
+
+```sh
+moon run example/profile --target js > profile.json
+python validation/check_profile.py example profile.json
+python validation/check_profile.py files COMPILED_SUMMARY_JS NEW_CAPTURE_DIRECTORY
+```
+
+Twelve full successful profiles cover42 source-record occurrences, including
+invalid apparent peaks, valid/invalid nonfinites, signed-zero first ties, empty and
+all-invalid/all-nonfinite inputs, reverse clock ties, duplicate names/groups and
+UInt64 physical rounding. Seven real profile errors include labels/data even
+when invalid or numeric-looking, missing/negative global indices and unsupported
+selected conversion. An unsupported unselected sibling remains readable.
+The actual file receiver also checks the full legacy summary and four argument/
+I/O rejections through24 direct Node calls, with empty stdout on every failure.
+
+Four committed MIT derivatives in `analysis/profile_fixture` change explicit
+owned DT bytes only: signed-zero first value/time, all-invalid numeric masks,
+reverse-clock equal-value ties and all-nonfinite values. The portable fixture
+package also embeds the unchanged owned native-real input. All original MF4
+files, reference outputs and old tests remain; no external generator supplies
+the expected profile, and no third-party MDF runtime is needed.

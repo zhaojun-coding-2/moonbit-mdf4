@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zhaojun-coding-2/mdf4/analysis/profile_fixture"
+
+// Values
+pub fn all_invalid() -> Bytes
+
+pub fn all_nonfinite() -> Bytes
+
+pub fn native_real() -> Bytes
+
+pub fn signed_zero() -> Bytes
+
+pub fn tie_reversed() -> Bytes
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

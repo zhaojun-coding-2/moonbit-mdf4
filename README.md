@@ -68,6 +68,41 @@ Normal `open` still reads/validates/decompresses the full file, copies all group
 
 A successful window does not certify that unselected records are physically readable. A known sample-level domain, UTF-8 or master-validity error outside a window can be avoided; including that record returns its existing source error. The old whole `read_raw`/`read_channel`/`extract_channel` behavior remains unchanged. Full-file structural/budget failures still occur at open even if a requested window would avoid that location. See `validation/check_window.py` for independent original-byte and actual public-receiver checks.
 
+## Finite numeric profiles
+
+`@analysis.channel_numeric_profile(file, index)` returns valid finite physical
+minima/maxima with their original group-native record index and physical master
+time, plus invalid/finite/NaN/+Inf/-Inf counts. All observed physical values must
+be numeric, including invalid values; numeric-looking labels and bytes are not
+coerced. Invalid samples have their own bucket; valid nonfinite samples are
+counted separately and cannot become finite extrema. Counts partition the source.
+
+Numerically tied values retain the first native record, preserving its value/time
+bits, including signed zero. This is record order rather than chronological order;
+`strict_time_order` reports repeated/reversed source clocks. Physical Double
+rounding can tie distinct UInt64 raw values, so the result is a physical profile.
+No clock sorting, rate/unit inference, origin addition or resampling occurs.
+Stored master units remain unchanged, including an empty unit string.
+
+Empty input has no observed numeric kind and null extrema. Nonempty all-invalid
+or all-nonfinite numeric input has an observed kind but no finite extrema. Existing
+source/conversion errors propagate before profiling. The operation uses the
+existing full physical read and limits; it does not introduce streaming I/O.
+
+```sh
+moon run example/profile --target wasm-gc
+moon build --target js
+node _build/js/debug/build/zhaojun-coding-2/mdf4/cmd/summary/summary.js analysis/catalog_fixture/catalog.mf4 3 --numeric
+```
+
+The typed result's `to_json_string()` and the optional `summary --numeric` mode
+emit `mdf4.analysis.numeric-profile/1`. The exact UInt64 origin and finite point
+time/value are decimal strings; decode the latter as binary64, preserving `-0`.
+Indices/counts are integers. There is no unique decimal spelling guarantee.
+The original two-argument summary keeps its existing schema. The profile covers
+finite extrema and event locations, without adding mean/RMS/integration policies.
+See [independent verification](validation/README.md#finite-numeric-profiles).
+
 ## Saved native window handoff
 
 The Node [native handoff command](cmd/native_handoff/README.md) replays an ordered

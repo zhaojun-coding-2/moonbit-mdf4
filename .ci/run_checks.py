@@ -102,6 +102,8 @@ def main():
     run("independent-utf16-example", [sys.executable, ROOT/"validation/check_utf16.py", "example", out/"utf16.json"])
     run("interpolation-example", ["moon", "run", "example/interpolation", "--target", args.target], output="interpolation.json")
     run("independent-interpolation-example", [sys.executable, ROOT/"validation/check_interpolation.py", "example", out/"interpolation.json"])
+    run("profile-example", ["moon", "run", "example/profile", "--target", args.target], output="profile.json")
+    run("independent-profile-example", [sys.executable, ROOT/"validation/check_profile.py", "example", out/"profile.json"])
     run("consumer-record-newlines", [sys.executable, ROOT/"validation/check_record_newlines.py", out/"record-newlines"])
 
     if args.target == "js":
@@ -125,6 +127,7 @@ def main():
             ("utf16", "check_utf16.py", ["files", inspector, export, out/"utf16-files"]),
             ("native-handoff", "check_native_handoff.py", [native_handoff, out/"native-handoff-files"]),
             ("interpolation", "check_interpolation.py", ["files", export, inspector, out/"interpolation-files"]),
+            ("profile", "check_profile.py", ["files", summary, out/"profile-files"]),
         ]
         for name, filename, parameters in consumers:
             run("consumer-"+name, [sys.executable, ROOT/"validation"/filename, *parameters])
@@ -148,6 +151,10 @@ def main():
                 "trackedSourcesUnchanged": True, "status": "pass"}
     (out/"source-and-verification.json").write_text(json.dumps(manifest, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status": "pass", "target": args.target, "commandCount": len(commands), "commit": manifest["commit"], "sourceTreeSha256": manifest["treeSha256"]}))
+    profile_binary = package_binary(ROOT, args.target, "example/profile")
+    profile_cases = json.loads((ROOT/"validation/profile-cases.json").read_bytes())
+    profile_files = out/"profile-files/manifest.json"
+    print("::notice title=MDF4 verified numeric profile::target="+args.target+" commit="+str(manifest["commit"])+" compiled="+hashlib.sha256(profile_binary.read_bytes()).hexdigest()+" output="+hashlib.sha256((out/"profile.json").read_bytes()).hexdigest()+" oracle="+hashlib.sha256((ROOT/"validation/profile-cases.json").read_bytes()).hexdigest()+" successes="+str(sum(c["stage"] == "success" for c in profile_cases))+" errors="+str(sum(c["stage"] == "error" for c in profile_cases))+" records="+str(sum(c["expected"]["sample_count"] for c in profile_cases if c["stage"] == "success"))+" files="+(hashlib.sha256(profile_files.read_bytes()).hexdigest() if args.target == "js" else "not-applicable"))
     interpolation_binary = package_binary(ROOT, args.target, "example/interpolation")
     interpolation_cases = json.loads((ROOT/"validation/interpolation-cases.json").read_bytes())
     interpolation_files = out/"interpolation-files/manifest.json"

@@ -10,8 +10,9 @@ extern "js" fn reject(message : String) -> Unit = "(s) => { process.stderr.write
 ///|
 fn main {
   let args = arguments()
-  if args.length() != 2 {
-    reject("Usage: summary FILE.mf4 INDEX")
+  let numeric = args.length() == 3 && args[2] == "--numeric"
+  if args.length() != 2 && !numeric {
+    reject("Usage: summary FILE.mf4 INDEX [--numeric]")
     return
   }
   let index = @string.parse_int(args[1][:]) catch {
@@ -22,10 +23,19 @@ fn main {
   }
   match @mdf.open(load(args[0])) {
     Err(error) => reject("Cannot open MDF input: \{error.to_repr()}")
-    Ok(file) =>
-      match @analysis.channel_summary_json(file, index) {
+    Ok(file) => {
+      let result = if numeric {
+        match @analysis.channel_numeric_profile(file, index) {
+          Ok(profile) => Ok(profile.to_json_string())
+          Err(error) => Err(error)
+        }
+      } else {
+        @analysis.channel_summary_json(file, index)
+      }
+      match result {
         Err(error) => reject("Cannot read channel: \{error.to_repr()}")
         Ok(summary) => println(summary)
       }
+    }
   }
 }

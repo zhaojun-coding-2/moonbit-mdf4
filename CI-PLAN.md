@@ -40,3 +40,13 @@ and saved-file receipt verification. `MDF4 verified interpolation precision`
 binds target/head, actual portable compiled/output SHA-256, the full independent
 oracle, 14 cases/46 points, and the JS file-consumer manifest (not applicable to
 the portable-only Wasm-GC job). Every previous required gate remains in place.
+## Finite numeric profile gate
+
+Both required targets run the actual portable `example/profile` and compare all
+typed/wire fields via `check_profile.py example`:12 successful profiles,7 errors,
+42 logical source-record occurrences. The JS job additionally runs
+`check_profile.py files` against the real compiled summary:24 Node invocations,
+including a full legacy summary control and four entry/I/O failures.
+`MDF4 verified numeric profile` binds exact target/head, actual compiled and output
+hashes, complete independent oracle and counts, and the JS file manifest (not
+applicable for portable-only Wasm-GC). Prior necessary gates remain unchanged.

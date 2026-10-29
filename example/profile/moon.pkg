@@ -1,0 +1,13 @@
+import {
+  "zhaojun-coding-2/mdf4" @mdf,
+  "zhaojun-coding-2/mdf4/analysis",
+  "zhaojun-coding-2/mdf4/analysis/catalog_fixture" @catalog,
+  "zhaojun-coding-2/mdf4/analysis/summary_fixture" @summary,
+  "zhaojun-coding-2/mdf4/analysis/review_fixture" @review,
+  "zhaojun-coding-2/mdf4/analysis/profile_fixture",
+  "zhaojun-coding-2/mdf4/analysis/fixture" @special,
+  "zhaojun-coding-2/mdf4/testdata" @fixture,
+  "moonbitlang/core/json",
+}
+
+pkgtype(kind: "executable")

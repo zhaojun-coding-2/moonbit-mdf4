@@ -15,6 +15,8 @@ pub fn align_with_gap(@mdf4.MdfFile, Array[ChannelRequest], Array[Double], max_g
 
 pub fn channel_catalog_json(@mdf4.MdfFile) -> String
 
+pub fn channel_numeric_profile(@mdf4.MdfFile, Int32) -> Result[NumericProfile, @mdf4.MdfError]
+
 pub fn channel_summary_json(@mdf4.MdfFile, Int32) -> Result[String, @mdf4.MdfError]
 
 pub fn parse_raster_json(String) -> Result[Array[Double], AnalysisError]
@@ -62,6 +64,36 @@ pub(all) struct ChannelRequest {
   policy : @mdf4.Interpolation
 } derive(@debug.Debug)
 pub fn ChannelRequest::to_repr(Self) -> @debug.Repr
+
+pub(all) struct NumericExtremum {
+  record_index : Int32
+  time : Double
+  value : Double
+} derive(@debug.Debug)
+pub fn NumericExtremum::to_repr(Self) -> @debug.Repr
+
+pub(all) struct NumericProfile {
+  file_version : String
+  start_ns : UInt64
+  channel_index : Int32
+  group_index : Int32
+  master_channel_index : Int32
+  name : String
+  unit : String
+  master_unit : String
+  sample_count : Int32
+  invalid_samples : Int32
+  finite_samples : Int32
+  nan_samples : Int32
+  positive_infinity_samples : Int32
+  negative_infinity_samples : Int32
+  numeric_kind_observed : Bool
+  strict_time_order : Bool
+  minimum : NumericExtremum?
+  maximum : NumericExtremum?
+} derive(@debug.Debug)
+pub fn NumericProfile::to_json_string(Self) -> String
+pub fn NumericProfile::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
